@@ -74,7 +74,7 @@ export default {
                 {
                     title: 'Laporan Tugas',
                     icon: 'mdi mdi-file-document-multiple-outline',
-                    url: '/report',
+                    url: '/notfound',
                     role: ['superadmin'],
                 },
                 // {
