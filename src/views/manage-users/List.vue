@@ -101,7 +101,35 @@ export default {
     name: 'ManageUser',
     data() {
         return {
-            list: [],
+            list: [
+                {
+                    id: 1,
+                    nama: "Budi Santoso",
+                    email: "budi@example.com",
+                    telepon: "081234567890",
+                    jabatan: "Manager",
+                    status: "active",
+                    password_raw: "budi123"
+                },
+                {
+                    id: 2,
+                    nama: "Siti Aminah",
+                    email: "siti@example.com",
+                    telepon: "081298765432",
+                    jabatan: "Staff HRD",
+                    status: "deactive",
+                    password_raw: "siti456"
+                },
+                {
+                    id: 3,
+                    nama: "Agus Prasetyo",
+                    email: "agus@example.com",
+                    telepon: "081377788899",
+                    jabatan: "Admin",
+                    status: "active",
+                    password_raw: "agus789"
+                }
+            ],
             keywords: '',
             isCheckAll: false,
             pagination: {
@@ -109,7 +137,7 @@ export default {
                 next: false,
                 page: 1,
                 limit: 5,
-                total: 0
+                total: 3
             },
             loading: null,
             rwId: '',
@@ -126,7 +154,7 @@ export default {
         }
     },
     mounted() {
-        this.fetchData(1)
+        // this.fetchData(1)
     },
     created() {
         this.debouncedHandler = debounce(() => {

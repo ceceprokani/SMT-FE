@@ -83,24 +83,28 @@ export default {
     components: {Field, Form, ErrorMessage},
     methods: {
         async handleSubmit() {
-            try {
-                this.fetch = true
-                const signin = await ApiCore.store(`${apiEndPoint.AUTHENTICATION}/signin`, {username: this.username, password: this.password})
-                this.fetch = false
-                if (signin.status) {
-                    this.$toast.success(signin.message);
-                    localStorage.removeItem('token')
-                    localStorage.setItem('token', signin.token)
-                    setTimeout(() => {
-                        window.location.href = '/'
-                    }, 1000);
-                } else {
-                    this.$toast.error(signin.message);
-                }
-            } catch(error) {
-                this.fetch = false
-                this.$toast.error(error.message);
-            }
+            this.fetch = true
+            localStorage.setItem('token', '1')
+            window.location.href = '/'
+
+            // try {
+            //     this.fetch = true
+            //     const signin = await ApiCore.store(`${apiEndPoint.AUTHENTICATION}/signin`, {username: this.username, password: this.password})
+            //     this.fetch = false
+            //     if (signin.status) {
+            //         this.$toast.success(signin.message);
+            //         localStorage.removeItem('token')
+            //         localStorage.setItem('token', signin.token)
+            //         setTimeout(() => {
+            //             window.location.href = '/'
+            //         }, 1000);
+            //     } else {
+            //         this.$toast.error(signin.message);
+            //     }
+            // } catch(error) {
+            //     this.fetch = false
+            //     this.$toast.error(error.message);
+            // }
         }
     }
 }

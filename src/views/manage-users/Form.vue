@@ -134,7 +134,7 @@ export default {
     data() {
         return {
             id: this.$route.params.id,
-            listJabatan: [],
+            listJabatan: [{id: 1, nama: 'Jabatan 1'}, {id: 2, nama: 'Jabatan 2'}],
             form: {
                 id: '',
                 nama: '',
@@ -180,14 +180,14 @@ export default {
         }
     },
     async mounted() {
-        this.fetchDataJabatan()
-        if (this.id) {
-            ApiCore.get(`${apiEndPoint.MASTER_ADMIN}/detail`, {id: this.$route.params.id}).then((result) => {
-                if (result.status) {
-                    this.form = result.data
-                }
-            })
-        }
+        // this.fetchDataJabatan()
+        // if (this.id) {
+        //     ApiCore.get(`${apiEndPoint.MASTER_ADMIN}/detail`, {id: this.$route.params.id}).then((result) => {
+        //         if (result.status) {
+        //             this.form = result.data
+        //         }
+        //     })
+        // }
     },
     methods: {
         setRawPhone() {
@@ -202,35 +202,38 @@ export default {
             })
         },
         async handleSubmit() {
-            try {
-                this.setRawPhone()
-                this.loading = this.$loading.show()
-                const result = await ApiCore.store(`${apiEndPoint.MANAGE_USER}/save`, {...this.form})
-                this.fetch = false
-                if (result.status) {
-                    this.$router.push({name: 'manage-users'})
-                    this.$toast.success(result.message);
-                } else {
-                    this.$toast.error(result.message);
-                }
-                
-                this.loading.hide()
-            } catch(error) {
-                if (this.loading != null)
-                    this.loading.hide()
-                this.fetch = false
+            this.$router.push({name: 'manage-users'})
+            this.$toast.success('Data berhasil disimpan');
 
-                let message = error.message || error.code
-
-                if (message == 'auth/email-already-in-use')
-                    message = 'Email sudah terdaftar, silahkan masukkan email lain!'
-                else if (message == 'auth/invalid-email')
-                    message = 'Email yang dimasukan tidak valid!'
-                else if (message == 'auth/weak-password')
-                    message = 'Kombinasi password lemah!'
+            // try {
+            //     this.setRawPhone()
+            //     this.loading = this.$loading.show()
+            //     const result = await ApiCore.store(`${apiEndPoint.MANAGE_USER}/save`, {...this.form})
+            //     this.fetch = false
+            //     if (result.status) {
+            //         this.$router.push({name: 'manage-users'})
+            //         this.$toast.success(result.message);
+            //     } else {
+            //         this.$toast.error(result.message);
+            //     }
                 
-                this.$toast.error(message);
-            }
+            //     this.loading.hide()
+            // } catch(error) {
+            //     if (this.loading != null)
+            //         this.loading.hide()
+            //     this.fetch = false
+
+            //     let message = error.message || error.code
+
+            //     if (message == 'auth/email-already-in-use')
+            //         message = 'Email sudah terdaftar, silahkan masukkan email lain!'
+            //     else if (message == 'auth/invalid-email')
+            //         message = 'Email yang dimasukan tidak valid!'
+            //     else if (message == 'auth/weak-password')
+            //         message = 'Kombinasi password lemah!'
+                
+            //     this.$toast.error(message);
+            // }
         },
     }
 }

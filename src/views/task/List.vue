@@ -95,7 +95,7 @@
                                                             <div class="d-flex justify-content-end align-items-center">
                                                                 <router-link :to="`/task/form/${item.id}`" class="btn btn-primary button-rounded ms-2 fw-bold border-0" type="button"><div class="d-flex"><i class="ri-search-line me-1"></i>Detail</div></router-link>
                                                                 <router-link :to="`/task/form/${item.id}`" class="btn bg-white border button-rounded ms-2 fw-bold" type="button"><div class="d-flex"><i class="ri-checkbox-circle-line me-1"></i>Selesaikan</div></router-link>
-                                                                <router-link :to="`/task/form/${item.id}`" class="btn btn-square bg-white border button-rounded ms-2" type="button"><div class="d-flex"><i class="ri-delete-bin-5-line"></i></div></router-link>
+                                                                <button class="btn btn-square bg-white border button-rounded ms-2" type="button" @click="deletedData(item)"><div class="d-flex"><i class="ri-delete-bin-5-line"></i></div></button>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -221,7 +221,7 @@ export default {
             this.$swal
                 .fire({
                     title: 'Apakah kamu yakin ?',
-                    html: `Kamu akan menghapus data dengan nama <b>${data.nama}</b>`,
+                    html: `Kamu akan menghapus data dengan nama penerima tugas <b>${data.penerima_tugas}</b>`,
                     icon: 'warning',
                     showDenyButton: true,
                     showCancelButton: false,

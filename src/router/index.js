@@ -143,19 +143,28 @@ router.beforeEach((to, from, next) => {
         if (localData) { 
             // Jika token ada
             if (!authRequired) {
-                ApiCore.get(`${apiEndPoint.ACCOUNT}/info`)
-                    .then((response) => {
-                        if ('status' in response && !response.status) {
-                            localStorage.removeItem('token');
-                            next({ name: 'home' }); // Arahkan ke home jika token tidak valid
-                        } else {
-                            stores.commit('setuser', response.data);
-                            next(); // Lanjut ke halaman yang dituju
-                        }
-                    })
-                    .catch(() => {
-                        next({ name: 'signin' }); // Jika ada error saat validasi token, arahkan ke signin
+                // ApiCore.get(`${apiEndPoint.ACCOUNT}/info`)
+                //     .then((response) => {
+                //         if ('status' in response && !response.status) {
+                //             localStorage.removeItem('token');
+                //             next({ name: 'home' }); // Arahkan ke home jika token tidak valid
+                //         } else {
+                //             stores.commit('setuser', response.data);
+                //             next(); // Lanjut ke halaman yang dituju
+                //         }
+                //     })
+                //     .catch(() => {
+                //         next({ name: 'signin' }); // Jika ada error saat validasi token, arahkan ke signin
+                //     });
+                stores.commit('setuser', 
+                    {
+                        "id": 1,
+                        "username": "superadmin@gmail.com",
+                        "name": "Super Admin",
+                        "role": "superadmin",
+                        "logged_in": true
                     });
+                next(); // Lanjut ke halaman yang dituju
             } else {
                 next(); // Jika halaman tidak memerlukan autentikasi, lanjutkan
             }
