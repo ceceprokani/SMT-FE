@@ -11,6 +11,7 @@ import ManageUserForm from '../views/manage-users/Form.vue'
 
 import Task from '../views/task/List.vue'
 import TaskForm from '../views/task/Form.vue'
+import TaskDetail from '../views/task/Detail.vue'
 
 import NotFound from '../views/404.vue'
 
@@ -93,11 +94,21 @@ const routes = [
         }
     },
     {
-        path: '/task/form/:client_id?/:id?',
+        path: '/task/form/:id?',
         name: 'task.form',
         component: TaskForm,
         meta: {
             title: `${nameApplication} | Form Data Tugas`,
+            footer: true,
+            navbar: true,
+        }
+    },
+    {
+        path: '/task/detail/:id?',
+        name: 'task.detail',
+        component: TaskDetail,
+        meta: {
+            title: `${nameApplication} | Detail Data Tugas`,
             footer: true,
             navbar: true,
         }
