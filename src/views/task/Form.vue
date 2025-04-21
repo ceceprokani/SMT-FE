@@ -48,6 +48,11 @@
                                                 <ErrorMessage name="prioritas" :class="'text-danger'" />
                                             </div>
                                             <div class="form-group mb-3">
+                                                <label class="form-label">Deadline Tugas</label>
+                                                <Field type="date" name="deadline_tugas" class="form-control mb-2" v-model="form.deadline_tugas" />
+                                                <ErrorMessage name="deadline_tugas" :class="'text-danger'" />
+                                            </div>
+                                            <div class="form-group mb-3">
                                                 <label class="form-label">Catatan</label>
                                                 <Field as="textarea" name="catatan" rows="4" class="form-control custom-rounded-medium" placeholder="Masukkan catatan tugas (opsional)" v-model="form.catatan"/>
                                             </div>
@@ -118,6 +123,7 @@ export default {
                 penerima_tugas: yup.string().required('Pilih penerima tugas'),
                 deskripsi: yup.string().required('Masukkan deskripsi tugas'),
                 prioritas: yup.string().required('Pilih prioritas tugas'),
+                deadline_tugas: yup.string().required('Masukan deadline tugas'),
             });
         }
     },
