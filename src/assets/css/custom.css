@@ -211,7 +211,7 @@
     background-color: white !important;
 }
 
-.table-custom-card .middle-item {
+.middle-item {
     vertical-align: middle !important;
 }
 
@@ -255,7 +255,7 @@
 
 .active-link {
     color: var(--bs-primary) !important;
-    font-weight: bold;
+    font-weight: bold !important;
 }
 .form-check-input {
     scale: 1.2 !important;

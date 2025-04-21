@@ -19,6 +19,10 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import Toast, {useToast} from "vue-toastification";
 import "vue-toastification/dist/index.css";
 
+// moment library
+import moment from 'moment'
+import 'moment/dist/locale/id'
+
 // load assets
 import './assets/css/bootstrap.min.css'
 import './assets/css/icons.min.css'
@@ -83,15 +87,10 @@ app.config.globalProperties.$toCurrency = function (value, useDecimal = true, de
     return formattedValue.replace(/\d(?=(\d{3})+(?!\d))/g, '$&,');
 };
 
-app.config.globalProperties.$listRW = [
-    {
-        value: 1,
-        label: 'RW 01'
-    },
-    {
-        value: 2,
-        label: 'RW 02'
-    }
-];
+app.config.globalProperties.$changeFormatDate = function (date, format='DD MMMM YYYY HH:mm') {
+    if (!date) return '-'
+    moment.locale('id')
+    return moment(date).format(format)
+}
 
 app.mount('#app')

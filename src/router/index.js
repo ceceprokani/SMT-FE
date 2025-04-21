@@ -9,8 +9,8 @@ import Signin from '../views/authentication/Signin.vue'
 import ManageUser from '../views/manage-users/List.vue'
 import ManageUserForm from '../views/manage-users/Form.vue'
 
-import Transaction from '../views/transaction/List.vue'
-import TransactionForm from '../views/transaction/Form.vue'
+import Task from '../views/task/List.vue'
+import TaskForm from '../views/task/Form.vue'
 
 import NotFound from '../views/404.vue'
 
@@ -83,21 +83,21 @@ const routes = [
         }
     },
     {
-        path: '/transaction',
-        name: 'transaction',
-        component: Transaction,
+        path: '/task',
+        name: 'task',
+        component: Task,
         meta: {
-            title: `${nameApplication} | Data Transaksi`,
+            title: `${nameApplication} | Data Tugas`,
             footer: true,
             navbar: true,
         }
     },
     {
-        path: '/transaction/form/:client_id?/:id?',
-        name: 'transaction.form',
-        component: TransactionForm,
+        path: '/task/form/:client_id?/:id?',
+        name: 'task.form',
+        component: TaskForm,
         meta: {
-            title: `${nameApplication} | Form Data Transaksi`,
+            title: `${nameApplication} | Form Data Tugas`,
             footer: true,
             navbar: true,
         }

@@ -8,7 +8,7 @@
                         <div class="row">
                             <div class="col-12 mt-3">
                                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                    <h4 class="mb-sm-0">Dashboard</h4>
+                                    <h4 class="mb-sm-0">Selamat Datang</h4>
                                 </div>
                             </div>
                         </div>
@@ -20,12 +20,12 @@
                                         <div class="d-flex">
                                             <div class="avatar-md">
                                                 <span class="avatar-title rounded-circle bg-primary h1">
-                                                    <i class="mdi mdi-account-outline text-white"></i>
+                                                    <i class="ri-calendar-todo-fill text-white"></i>
                                                 </span>
                                             </div>
                                             <div class="d-block ms-3">
-                                                <p class="mb-1 text-dark">Jumlah Admin</p>
-                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.total_admin}}</h1> <span class="font-size-12 mb-1">orang</span></div>
+                                                <p class="mb-1 text-dark">Total Tugas</p>
+                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.total_task || 0}}</h1> <span class="font-size-12 mb-1">tugas</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -39,12 +39,12 @@
                                         <div class="d-flex">
                                             <div class="avatar-md">
                                                 <span class="avatar-title rounded-circle bg-primary h1">
-                                                    <i class="mdi mdi-card-account-details-outline text-white"></i>
+                                                    <i class="ri-calendar-check-fill text-white"></i>
                                                 </span>
                                             </div>
                                             <div class="d-block ms-3">
-                                                <p class="mb-1 text-dark">Jumlah Petugas</p>
-                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.total_staff}}</h1> <span class="font-size-12 mb-1">orang</span></div>
+                                                <p class="mb-1 text-dark">Tugas Selesai</p>
+                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.total_task_done || 0}}</h1> <span class="font-size-12 mb-1">tugas</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -58,12 +58,12 @@
                                         <div class="d-flex">
                                             <div class="avatar-md">
                                                 <span class="avatar-title rounded-circle bg-primary h1">
-                                                    <i class="mdi mdi-account-group-outline text-white"></i>
+                                                    <i class="ri-flashlight-line text-white"></i>
                                                 </span>
                                             </div>
                                             <div class="d-block ms-3">
-                                                <p class="mb-1 text-dark">Jumlah Pelanggan</p>
-                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.total_customer}}</h1> <span class="font-size-12 mb-1">orang</span></div>
+                                                <p class="mb-1 text-dark">Sedang Dikerjakan</p>
+                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.total_customer}}</h1> <span class="font-size-12 mb-1">tugas</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -77,12 +77,12 @@
                                         <div class="d-flex">
                                             <div class="avatar-md">
                                                 <span class="avatar-title rounded-circle bg-primary h1">
-                                                    <i class="mdi mdi-water-outline text-white"></i>
+                                                    <i class="ri-close-line text-white"></i>
                                                 </span>
                                             </div>
                                             <div class="d-block ms-3">
-                                                <p class="mb-1 text-dark">Harga Air</p>
-                                                <div class="d-flex align-items-end"><span class="font-size-12 mb-1">Rp. </span><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.total_customer}}</h1></div>
+                                                <p class="mb-1 text-dark">Belum Dikerjakan</p>
+                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.total_task_undone || 0}}</h1><span class="font-size-12 mb-1">tugas</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -93,35 +93,28 @@
                             <!-- end col -->
                         </div>
                         <!-- resident growth -->
-                        <h6 class="mb-0 fw-bold mb-3 fs-5"><i class="mdi mdi-map-marker-multiple me-2"></i>Daftar Tagihan</h6>
+                        <h6 class="mb-0 fw-bold mb-3 fs-5">Grafik Tugas</h6>
                         <div class="row">
-                            <template v-if="listTrx.length">
-                                <div class="col-md-3" v-for="item in listTrx">
-                                    <div class="card custom-rounded-medium">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                                <h4 class="mt-0 mb-0 me-3 mb-2">{{ item.name }}</h4>
-                                                <router-link class="btn btn-white border btn-sm custom-rounded-medium"><i class="mdi mdi-magnify"></i> Detail</router-link>
-                                            </div>
-                                            <div class="d-block bg-light py-2 px-3 custom-rounded-medium">
-                                                <div class="mb-2">Penanggung Jawab</div>
-                                                <div class="fw-bold">{{ item.supervisor?.name }}</div>
-                                                <div class="fw-bold">{{ item.supervisor?.phone }}</div>
-                                            </div>
-                                        </div>
-                                        <!-- end card-body -->
-                                    </div>
-                                    <!-- end card -->
-                                </div>
-                            </template>
-                            <div v-else class="col-md-12">
-                                <div class="bg-light p-3 custom-rounded-medium">
-                                    <div class="text-muted">
-                                        Belum ada tagihan untuk saat ini
+                            <div class="col-md-8">
+                                <div class="card card-body custom-rounded-medium">
+                                    <h6>Grafik Tugas Keseluruhan</h6>
+                                    <div class="bg-light custom-rounded-medium">
+                                        <div class="spacer-medium">&nbsp;</div>
+                                        <div class="spacer-medium">&nbsp;</div>
+                                        <div class="spacer-medium">&nbsp;</div>
                                     </div>
                                 </div>
                             </div>
-                            <!-- end col -->
+                            <div class="col-md-4">
+                                <div class="card card-body custom-rounded-medium">
+                                    <h6>Progress Pengerjaan Tugas</h6>
+                                    <div class="bg-light custom-rounded-medium">
+                                        <div class="spacer-medium">&nbsp;</div>
+                                        <div class="spacer-medium">&nbsp;</div>
+                                        <div class="spacer-medium">&nbsp;</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
