@@ -56,7 +56,10 @@
                                                         <td class="middle-item">{{ item.email }}</td>
                                                         <td class="middle-item">{{ item.telepon }}</td>
                                                         <td class="middle-item">{{ item.jabatan || '-' }}</td>
-                                                        <td class="middle-item">{{ item.status || '-' }}</td>
+                                                        <td class="middle-item">
+                                                            <span class="badge bg-primary fs-6" v-if="item.status == 'active'">Aktif</span>
+                                                            <span class="badge bg-light fs-6" v-else>Tidak Aktif</span>
+                                                        </td>
                                                         <td class="middle-item" v-if="$store.state.user?.role == 'superadmin'">{{ item.password_raw || '-' }}</td>
                                                         <td class="middle-item">
                                                             <div class="d-flex justify-content-end align-items-center">
@@ -174,7 +177,7 @@ export default {
                 .then(async (result) => {
                     if (result.isConfirmed) {
                         try {
-                            const response = await ApiCore.delete(apiEndPoint.MASTER_ADMIN, data.user_id)
+                            const response = await ApiCore.delete(`${apiEndPoint.MANAGE_USER}`, data.id)
 
                             if (response.status) {
                                 this.fetchData(1)
@@ -214,7 +217,15 @@ export default {
                     if (result.isConfirmed) {
                         try {
                             this.isCheckAll = false // menghilangkan ceklist pada chekcbox
-                            this.fetchData() // mengambil data
+                            
+                            const response = await ApiCore.bulkDelete(`${apiEndPoint.MANAGE_USER}`, listId)
+
+                            if (response.status) {
+                                this.fetchData(this.pagination.page)
+                                this.$toast.success(response.message);
+                            } else {
+                                this.$toast.error(response.message);
+                            }
                             this.$toast.success('Data berhasil dihapus');
                         } catch(error) {
                             this.$toast.error(error);
