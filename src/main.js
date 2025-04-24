@@ -23,6 +23,9 @@ import "vue-toastification/dist/index.css";
 import moment from 'moment'
 import 'moment/dist/locale/id'
 
+// datepicker
+import 'flatpickr/dist/flatpickr.css';
+
 // load assets
 import './assets/css/bootstrap.min.css'
 import './assets/css/icons.min.css'
@@ -70,6 +73,40 @@ app.config.globalProperties.$loading = useLoading({
 app.component(Pagination.name, Pagination)
 
 // global variables
+app.config.globalProperties.$priorityTask = [
+    {
+        id: 'low',
+        label: 'Low'
+    },
+    {
+        id: 'medium',
+        label: 'Medium'
+    },
+    {
+        id: 'high',
+        label: 'High'
+    },
+    {
+        id: 'urgent',
+        label: 'Urgent'
+    }
+]
+
+app.config.globalProperties.$statusTask = [
+    {
+        id: '0',
+        label: 'Belum Dikerjakan'
+    },
+    {
+        id: '1',
+        label: 'Sedang Dikerjakan'
+    },
+    {
+        id: '2',
+        label: 'Selesai'
+    },
+]
+
 app.config.globalProperties.$toast = useToast()
 
 // global functions

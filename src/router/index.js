@@ -13,6 +13,8 @@ import Task from '../views/task/List.vue'
 import TaskForm from '../views/task/Form.vue'
 import TaskDetail from '../views/task/Detail.vue'
 
+import Report from '../views/report/List.vue'
+
 import NotFound from '../views/404.vue'
 
 import Profile from '../views/Profile.vue'
@@ -119,6 +121,16 @@ const routes = [
         component: ChangePassword,
         meta: {
             title: `${nameApplication} | Ubah Password`,
+            footer: true,
+            navbar: true,
+        }
+    },
+    {
+        path: '/report',
+        name: 'report',
+        component: Report,
+        meta: {
+            title: `${nameApplication} | Laporan Tugas`,
             footer: true,
             navbar: true,
         }

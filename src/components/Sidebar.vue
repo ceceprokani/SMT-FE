@@ -74,15 +74,9 @@ export default {
                 {
                     title: 'Laporan Tugas',
                     icon: 'mdi mdi-file-document-multiple-outline',
-                    url: '/notfound',
+                    url: '/report',
                     role: ['superadmin'],
                 },
-                // {
-                //     title: 'Tagihan',
-                //     icon: 'mdi mdi-file-document-outline',
-                //     url: '/transaction',
-                //     role: ['superadmin', 'admin', 'staff'],
-                // },
             ])
 
         const urlContained = (index) => {
