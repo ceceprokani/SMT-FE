@@ -26,7 +26,7 @@
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Penerima Tugas</label>
                                                 <Field as="select" name="penerima_tugas" class="form-select select-rounded padding-vertical-10 mb-2" v-model="form.penerima_tugas">
-                                                    <option value="">Pilih  Jabatan &nbsp;</option>
+                                                    <option value="">Pilih Penerima Tugas &nbsp;</option>
                                                     <option v-for="item in listUser" :value="item.id">{{ item.nama }} &nbsp;</option>
                                                 </Field>
                                                 <ErrorMessage name="penerima_tugas" :class="'text-danger'" />

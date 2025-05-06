@@ -83,7 +83,7 @@ export default {
                     showDenyButton: true,
                     showCancelButton: false,
                     confirmButtonText: 'Ya',
-                    confirmButtonColor: '#7D0A0A',
+                    confirmButtonColor: '#3674B5',
                     denyButtonColor: '#c0c0c0',
                     denyButtonText: 'Tidak',
                 })
