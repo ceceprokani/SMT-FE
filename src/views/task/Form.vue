@@ -7,7 +7,8 @@
                         <!-- title of page -->
                         <div class="row justify-content-center">
                             <div class="col-8 mt-3">
-                                <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                                <div class="page-title-box d-sm-flex align-items-center">
+                                    <router-link to="/task" class="btn btn-square bg-white border custom-rounded-medium me-3"><i class="ri-arrow-left-s-line fs-4"></i></router-link>
                                     <h4 class="mb-sm-0">Form Data Tugas</h4>
                                 </div>
                             </div>
@@ -21,23 +22,23 @@
                                             <div class="spacer-medium"></div>
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Pemberi Tugas</label>
-                                                <Field type="text" name="pemberi_tugas" class="form-control custom-rounded-medium" placeholder="Masukkan nama" disabled />
+                                                <div class="text-primary fs-5 fw-bold mb-4 p-3 alert-info custom-rounded-medium">{{ $store.state?.user?.name }}</div>
                                             </div>
                                             <div class="form-group mb-3">
-                                                <label class="form-label">Penerima Tugas</label>
-                                                <Field as="select" name="penerima_tugas" class="form-select select-rounded padding-vertical-10 mb-2" v-model="form.penerima_tugas">
+                                                <label class="form-label">Penerima Tugas <span class="text-danger">*</span></label>
+                                                <Field as="select" name="penerima_tugas_id" class="form-select select-rounded padding-vertical-10 mb-2" v-model="form.penerima_tugas_id">
                                                     <option value="">Pilih Penerima Tugas &nbsp;</option>
                                                     <option v-for="item in listUser" :value="item.id">{{ item.nama }} &nbsp;</option>
                                                 </Field>
-                                                <ErrorMessage name="penerima_tugas" :class="'text-danger'" />
+                                                <ErrorMessage name="penerima_tugas_id" :class="'text-danger'" />
                                             </div>
                                             <div class="form-group mb-3">
-                                                <label class="form-label">Deskripsi</label>
+                                                <label class="form-label">Deskripsi Tugas <span class="text-danger">*</span></label>
                                                 <Field as="textarea" name="deskripsi" rows="4" class="form-control custom-rounded-medium mb-2" placeholder="Masukkan deskripsi tugas" v-model="form.deskripsi"/>
                                                 <ErrorMessage name="deskripsi" :class="'text-danger'" />
                                             </div>
                                             <div class="form-group mb-3">
-                                                <label class="form-label">Prioritas</label>
+                                                <label class="form-label">Prioritas <span class="text-danger">*</span></label>
                                                 <Field as="select" name="prioritas" class="form-select select-rounded padding-vertical-10 mb-2" v-model="form.prioritas">
                                                     <option value="">Pilih Prioritas &nbsp;</option>
                                                     <option value="urgent">URGENT &nbsp;</option>
@@ -48,9 +49,9 @@
                                                 <ErrorMessage name="prioritas" :class="'text-danger'" />
                                             </div>
                                             <div class="form-group mb-3">
-                                                <label class="form-label">Deadline Tugas</label>
-                                                <Field type="date" name="deadline_tugas" class="form-control mb-2" v-model="form.deadline_tugas" />
-                                                <ErrorMessage name="deadline_tugas" :class="'text-danger'" />
+                                                <label class="form-label">Deadline Tugas <span class="text-danger">*</span></label>
+                                                <Field type="date" name="deadline" class="form-control mb-2" v-model="form.deadline" />
+                                                <ErrorMessage name="deadline" :class="'text-danger'" />
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Catatan</label>
@@ -85,11 +86,12 @@ export default {
     data() {
         return {
             id: this.$route.params.id,
-            listUser: [{id: '1', nama: 'Udin Sedunia'}, {id: '2', nama: 'Aldy Wijaya Gustian'}, {id: '3', nama: 'Cecep Rokani'}],
+            listUser: [],
             form: {
-                id: '',
+                id: this.$route.params.id || '',
+                tugas_detail_id: '',
                 pemberi_tugas: '',
-                penerima_tugas: '',
+                penerima_tugas_id: '',
                 deskripsi: '',
                 prioritas: '',
                 catatan: '',
@@ -102,34 +104,19 @@ export default {
         Field, Form, ErrorMessage
     },
     computed: {
-        passwordStrength() {
-            const rules = [
-                { regex: /.{8,}/, message: 'Password lemah', level: 1 },
-                { regex: /[a-z]/, message: 'Password sedang', level: 2 },
-                { regex: /[A-Z]/, message: 'Password kuat', level: 3 },
-                { regex: /[0-9]/, message: 'Password sangat kuat', level: 4 },
-                { regex: /[\W_]/, message: 'Password sangat kuat', level: 5 }
-            ];
-
-            if (this.form.password) {
-                const strength = rules.reduce((acc, rule) => acc + rule.regex.test(this.form.password), 0);
-                return strength ? rules[strength - 1] : false;
-            } else {
-                return false
-            }
-        },
         schema() {
             return yup.object({
-                penerima_tugas: yup.string().required('Pilih penerima tugas'),
+                penerima_tugas_id: yup.string().required('Pilih penerima tugas'),
                 deskripsi: yup.string().required('Masukkan deskripsi tugas'),
                 prioritas: yup.string().required('Pilih prioritas tugas'),
-                deadline_tugas: yup.string().required('Masukan deadline tugas'),
+                deadline: yup.string().required('Masukan deadline tugas'),
             });
         }
     },
     async mounted() {
+        this.fetchDataUser()
         if (this.id) {
-            ApiCore.get(`${apiEndPoint.MASTER_ADMIN}/detail`, {id: this.$route.params.id}).then((result) => {
+            ApiCore.get(`${apiEndPoint.TASK}/detail`, {id: this.$route.params.id}).then((result) => {
                 if (result.status) {
                     this.form = result.data
                 }
@@ -139,45 +126,30 @@ export default {
     methods: {
         async fetchDataUser() {
             this.listUser = []
-            ApiCore.get(`${apiEndPoint.MASTER_DATA}/jabatan`).then((result) => {
+            ApiCore.get(`${apiEndPoint.MASTER_DATA}/list-user`).then((result) => {
                 if (result.status) {
-                    this.listUser = result.data
+                    this.listUser = result.data.filter((data) => data.id != this.$store.state.user.id)
                 }
             })
         },
         async handleSubmit() {
             try {
                 this.loading = this.$loading.show()
-                // const result = await ApiCore.store(`${apiEndPoint.MANAGE_USER}/save`, {...this.form})
-                // this.fetch = false
-                // if (result.status) {
-                //     // this.$toast.success(result.message);
-                // } else {
-                //     this.$toast.error(result.message);
-                // }
-                
-                this.$swal.fire({
-                    title: 'Sukses',
-                    text: 'Tugas berhasil disimpan. BOT sistem akan memberi notifikasi kepada penerima tugas.',
-                    icon: 'success'
-                })
-                this.$router.push({name: 'task'})
-                
+                const result = await ApiCore.store(`${apiEndPoint.TASK}/save`, {...this.form})
+                this.fetch = false
                 this.loading.hide()
+                if (result.status) {
+                    this.$router.push({name: 'task'})
+                    this.$toast.success(result.message);
+                } else {
+                    this.$toast.error(result.message);
+                }
             } catch(error) {
                 if (this.loading != null)
                     this.loading.hide()
                 this.fetch = false
 
                 let message = error.message || error.code
-
-                if (message == 'auth/email-already-in-use')
-                    message = 'Email sudah terdaftar, silahkan masukkan email lain!'
-                else if (message == 'auth/invalid-email')
-                    message = 'Email yang dimasukan tidak valid!'
-                else if (message == 'auth/weak-password')
-                    message = 'Kombinasi password lemah!'
-                
                 this.$toast.error(message);
             }
         },

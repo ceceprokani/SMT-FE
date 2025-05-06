@@ -23,39 +23,49 @@
                                         <div class="form-group mb-2 row">
                                             <div class="col-md-6">
                                                 <label>Pemberi Tugas</label>
-                                                <div class="bg-light custom-rounded-medium px-3 py-2 h6">Cecep Rokani</div>
+                                                <div class="bg-light custom-rounded-medium px-3 py-2 h6">{{ detail.pemberi_tugas }}</div>
                                             </div>
                                             <div class="col-md-6">
                                                 <label>Penerima Tugas</label>
-                                                <div class="bg-light custom-rounded-medium px-3 py-2 h6">Aldy Wijaya Gustian</div>
+                                                <div class="bg-light custom-rounded-medium px-3 py-2 h6">{{ detail.penerima_tugas }}</div>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3">
                                             <label>Deskripsi Tugas</label>
-                                            <div class="bg-light custom-rounded-medium px-3 py-2 h6 lh-base">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged</div>
+                                            <div class="bg-light custom-rounded-medium px-3 py-2 h6 lh-base" v-html="detail.deskripsi"></div>
                                         </div>
                                         <div class="form-group mb-2 row">
                                             <div class="col-md-6">
                                                 <label>Prioritas</label>
-                                                <div class="bg-light custom-rounded-medium px-3 py-2 h6 fw-bold">URGENT</div>
+                                                <div class="bg-light custom-rounded-medium px-3 py-2 h6 fw-bold text-uppercase">{{ detail.prioritas }}</div>
                                             </div>
                                             <div class="col-md-6">
                                                 <label>Status</label>
-                                                <div class="bg-light custom-rounded-medium px-3 py-2 h6 fw-bold">SEDANG DIKERJAKAN</div>
+                                                <div class="bg-light custom-rounded-medium px-3 py-2 h6 fw-bold">
+                                                    <div v-if="detail.status == 'todo'">Belum Dikerjakan</div>
+                                                    <div v-if="detail.status == 'progress'">Sedang Dikerjakan</div>
+                                                    <div v-if="detail.status == 'done'">Berhasil Dikerjakan</div>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3">
                                             <label>Deadline</label>
-                                            <div class="bg-light custom-rounded-medium px-3 py-2 h5 fw-bold">02 Mei 2025 08:00</div>
+                                            <div class="bg-light custom-rounded-medium px-3 py-2 h5 fw-bold" v-if="detail.deadline">{{ $changeFormatDate(detail.deadline, 'DD MMMM YYYY') }}</div>
                                         </div>
                                         <div class="form-group mb-3">
                                             <label>Catatan Tugas</label>
-                                            <div class="bg-light custom-rounded-medium px-3 py-2 h6 lh-base">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged</div>
+                                            <div class="bg-light custom-rounded-medium px-3 py-2 h6 lh-base">{{ detail.catatan }}</div>
                                         </div>
                                     </div>
                                     <div class="card-footer card-footer-custom-radius-medium bg-white">
                                         <div class="d-grid">
-                                            <button type="submit" class="btn btn-primary custom-rounded-medium p-2 mb-2" @click="changeStatus">Selesaikan Tugas Ini</button>
+                                            <template v-if="['progress', 'todo'].indexOf(detail.status) != -1">
+                                                <button type="button" class="btn btn-primary custom-rounded-medium p-2 mb-2" @click="updateStatus('done')" v-if="detail.status == 'progress'">Selesaikan Tugas Ini</button>
+                                                <button type="button" class="btn btn-primary custom-rounded-medium p-2 mb-2" @click="updateStatus('progress')" v-if="detail.status == 'todo'">Kerjakan Tugas Ini</button>
+                                            </template>
+                                            <div v-else class="alert alert-success custom-rounded-medium text-center fw-bold">
+                                                TUGAS TELAH SELESAI
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -111,11 +121,50 @@ export default {
     data() {
         return {
             id: this.$route.params.id,
+            detail: {}
         }
     },
     async mounted() {
+        if (this.id) {
+            ApiCore.get(`${apiEndPoint.TASK}/detail`, {id: this.$route.params.id}).then((result) => {
+                if (result.status) {
+                    this.detail = result.data
+                }
+            })
+        }
     },
     methods: {
+        async updateStatus(status) {
+            // menghapus data admin
+            this.$swal
+                .fire({
+                    title: 'Apakah kamu yakin ?',
+                    html: `Kamu akan mengubah status tugas ini,`,
+                    icon: 'warning',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: 'Ya',
+                    confirmButtonColor: '#3674B5',
+                    denyButtonColor: '#c0c0c0',
+                    denyButtonText: 'Tidak',
+                })
+                .then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await ApiCore.store(`${apiEndPoint.TASK}/update-status`, {id: this.id, status: status})
+
+                            if (response.status) {
+                                this.fetchData(1)
+                                this.$toast.success(response.message);
+                            } else {
+                                this.$toast.error(response.message);
+                            }
+                        } catch(error) {
+                            this.$toast.error(error);
+                        }
+                    }
+                });
+        },
         async changeStatus() {
             // menghapus data admin
             this.$swal
@@ -136,14 +185,12 @@ export default {
                             this.$toast.success('Berhasil');
                             this.$router.push({name: 'task'})
                             
-                            // const response = await ApiCore.delete(apiEndPoint.TRANSACTION, data.trx_id)
-
-                            // if (response.status) {
-                            //     this.fetchData(1)
-                            //     this.$toast.success(response.message);
-                            // } else {
-                            //     this.$toast.error(response.message);
-                            // }
+                            if (result.status) {
+                                // this.fetchData(1)
+                                this.$toast.success(result.message);
+                            } else {
+                                this.$toast.error(result.message);
+                            }
                         } catch(error) {
                             this.$toast.error(error);
                         }

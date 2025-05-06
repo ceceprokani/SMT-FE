@@ -79,23 +79,31 @@
                                                             <span class="badge bg-danger fs-6" v-if="item.status == 'todo'">Belum Dikerjakan</span>
                                                             <span class="badge bg-warning fs-6" v-if="item.status == 'ongoing'">Sedang Dikerjakan</span>
                                                             <span class="badge bg-success fs-6" v-if="item.status == 'done'">Selesai</span>
-                                                            <div class="text-uppercase fw-bold mt-1">{{ item.prioritas }}</div>
+                                                            <div class="d-flex mt-1 align-items-center">
+                                                                <i class="ri-alert-line me-1 fs-5 text-danger" v-if="item.prioritas == 'urgent'"></i>
+                                                                <i class="ri-arrow-up-circle-line me-1 fs-5 text-warning" v-if="item.prioritas == 'high'"></i>
+                                                                <i class="ri-indeterminate-circle-line me-1 fs-5 text-primary" v-if="item.prioritas == 'medium'"></i>
+                                                                <i class="ri-arrow-down-circle-line me-1 fs-5 text-success" v-if="item.prioritas == 'low'"></i>
+                                                                <div class="text-uppercase fw-bold">{{ item.prioritas }}</div>
+                                                            </div>
                                                         </td>
                                                         <td class="middle-item text-nowrap">
                                                             <div class="mb-2">
                                                                 <div class="text-muted font-size-13">Tanggal Permintaan</div>
-                                                                <div class="fw-bold">{{ $changeFormatDate(item.tanggal_permintaan) }}</div>
+                                                                <div class="fw-bold">{{ $changeFormatDate(item.created_at) }}</div>
                                                             </div>
                                                             <diiv>
                                                                 <div class="text-muted font-size-13">Tanggal Deadline</div>
-                                                                <div class="fw-bold">{{ $changeFormatDate(item.tanggal_deadline) }}</div>
+                                                                <div class="fw-bold">{{ $changeFormatDate(item.deadline, 'DD MMMM YYYY') }}</div>
                                                             </diiv>
                                                         </td>
                                                         <td class="middle-item">
                                                             <div class="d-flex justify-content-end align-items-center">
                                                                 <router-link :to="`/task/detail/${item.id}`" class="btn btn-primary button-rounded ms-2 fw-bold border-0" type="button"><div class="d-flex"><i class="ri-search-line me-1"></i>Detail</div></router-link>
-                                                                <router-link :to="`/task/form/${item.id}`" class="btn bg-white border button-rounded ms-2 fw-bold" type="button"><div class="d-flex"><i class="ri-checkbox-circle-line me-1"></i>Selesaikan</div></router-link>
-                                                                <button class="btn btn-square bg-white border button-rounded ms-2" type="button" @click="deletedData(item)"><div class="d-flex"><i class="ri-delete-bin-5-line"></i></div></button>
+                                                                <button type="button" class="btn bg-white border button-rounded ms-2 fw-bold" @click="updateStatus(index + 1, 'done')" v-if="item.status == 'progress'"><div class="d-flex"><i class="ri-checkbox-circle-line me-1"></i>Selesaikan</div></button>
+                                                                <button type="button" class="btn bg-white border button-rounded ms-2 fw-bold" @click="updateStatus(index + 1, 'progress')" v-if="item.status != 'done' && item.penerima_tugas_id == $store.state?.user?.id"><div class="d-flex"><i class="ri-flashlight-fill me-1"></i>Kerjakan</div></button>
+                                                                <router-link :to="`/task/form/${item.id}`" class="btn btn-square bg-white border button-rounded ms-2" v-if="item.status != 'done'"><div class="d-flex"><i class="ri-pencil-line fs-5"></i></div></router-link>
+                                                                <button class="btn btn-square bg-white border button-rounded ms-2" type="button" @click="deletedData(item)" v-if="item.status != 'done'"><div class="d-flex"><i class="ri-delete-bin-5-line"></i></div></button>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -132,38 +140,7 @@ export default {
     name: 'Transaction',
     data() {
         return {
-            list: [
-                {
-                    id: '1',
-                    pemberi_tugas: 'Aldy Wijaya Gustian',
-                    penerima_tugas: 'Galuh Subagja',
-                    deskripsi: 'Buatkan poster imlek',
-                    prioritas: 'urgent',
-                    status: 'todo',
-                    tanggal_permintaan: '2025-04-24 09:00:00',
-                    tanggal_deadline: '2025-05-10 10:00:00',
-                },
-                {
-                    id: '2',
-                    pemberi_tugas: 'Cecep Rokani',
-                    penerima_tugas: 'Aldy Wijaya Gustian',
-                    deskripsi: 'Routing email untuk anank yatim',
-                    prioritas: 'urgent',
-                    status: 'ongoing',
-                    tanggal_permintaan: '2025-04-24 09:00:00',
-                    tanggal_deadline: '2025-05-10 10:00:00',
-                },
-                {
-                    id: '3',
-                    pemberi_tugas: 'Gugun Santoso',
-                    penerima_tugas: 'Aldy Wijaya Gustian',
-                    deskripsi: 'Edit cv a.n. Windah & Tarmi',
-                    prioritas: 'Medium',
-                    status: 'done',
-                    tanggal_permintaan: '2025-04-24 09:00:00',
-                    tanggal_deadline: '2025-05-10 10:00:00',
-                },
-            ],
+            list: [],
             params: {
                 rw_id: '',
                 status: '',
@@ -187,7 +164,7 @@ export default {
         },
     },
     mounted() {
-        // this.fetchData(1)
+        this.fetchData(1)
     },
     created() {
         this.debouncedHandler = debounce(() => {
@@ -200,7 +177,7 @@ export default {
     },
     methods: {
         async fetchData(page=1) {
-            ApiCore.get(apiEndPoint.TRANSACTION, {
+            ApiCore.get(apiEndPoint.TASK, {
                 page: page,
                 limit: this.pagination.limit,
                 ...this.params
@@ -233,7 +210,38 @@ export default {
                 .then(async (result) => {
                     if (result.isConfirmed) {
                         try {
-                            const response = await ApiCore.delete(apiEndPoint.TRANSACTION, data.trx_id)
+                            const response = await ApiCore.delete(apiEndPoint.TASK, data.id)
+
+                            if (response.status) {
+                                this.fetchData(1)
+                                this.$toast.success(response.message);
+                            } else {
+                                this.$toast.error(response.message);
+                            }
+                        } catch(error) {
+                            this.$toast.error(error);
+                        }
+                    }
+                });
+        },
+        async updateStatus(number, status) {
+            // menghapus data admin
+            this.$swal
+                .fire({
+                    title: 'Apakah kamu yakin ?',
+                    html: `Kamu akan menyelesaikan tugas nomor <b>${number}</b>`,
+                    icon: 'warning',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: 'Ya',
+                    confirmButtonColor: '#3674B5',
+                    denyButtonColor: '#c0c0c0',
+                    denyButtonText: 'Tidak',
+                })
+                .then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await ApiCore.store(`${apiEndPoint.TASK}/update-status`, {id: data.id, status: status})
 
                             if (response.status) {
                                 this.fetchData(1)
