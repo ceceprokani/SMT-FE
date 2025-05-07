@@ -9,7 +9,7 @@
                             <div class="col-12 mt-3">
                                 <div class="page-title-box d-sm-flex align-items-start justify-content-between">
                                     <h4 class="mb-sm-0">Laporan Tugas</h4>
-                                    <button type="button" class="btn bg-white border custom-rounded-medium"><div class="d-flex"><i class="ri-download-2-line me-2"></i> Download Laporan</div></button>
+                                    <button type="button" class="btn bg-white border custom-rounded-medium" @click="download"><div class="d-flex"><i class="ri-download-2-line me-2"></i> Download Laporan</div></button>
                                 </div>
                             </div>
                         </div>
@@ -148,7 +148,7 @@ export default {
                 next: false,
                 page: 1,
                 limit: 5,
-                total: 3
+                total: 0
             },
             loading: null,
             listUser: []
@@ -191,6 +191,16 @@ export default {
                 if (result.status) {
                     this.listUser = result.data
                 }
+            })
+        },
+        download() {
+            ApiCore.get(`${apiEndPoint.REPORT}/download`, this.params).then((result) => {
+                const link = document.createElement('a');
+                link.href = result.url;
+                link.target = '_blank'; // mencegah pindah halaman jika browser tidak support download
+                link.setAttribute('download', `laporan.pdf`);
+                document.body.appendChild(link);
+                link.click();
             })
         },
     }
