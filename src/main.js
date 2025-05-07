@@ -94,15 +94,15 @@ app.config.globalProperties.$priorityTask = [
 
 app.config.globalProperties.$statusTask = [
     {
-        id: '0',
+        id: 'todo',
         label: 'Belum Dikerjakan'
     },
     {
-        id: '1',
+        id: 'progress',
         label: 'Sedang Dikerjakan'
     },
     {
-        id: '2',
+        id: 'done',
         label: 'Selesai'
     },
 ]

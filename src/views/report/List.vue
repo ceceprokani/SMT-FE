@@ -18,7 +18,7 @@
                                 <div class="card card-body">
                                     <h6 class="mb-3">Filter Pencarian</h6>
                                     <div class="row mb-3">
-                                        <div class="col-md-3">
+                                        <div class="col-md-3" v-if="$store.state.user.role != 'staff'">
                                             <select class="form-select select-rounded padding-vertical-10" v-model="params.user_id" @change="fetchData(1)">
                                                 <option value="">Semua  Pengguna &nbsp;</option>
                                                 <option v-for="item in listUser" :value="item.id">{{ item.nama }} &nbsp;</option>
@@ -36,7 +36,7 @@
                                                 <option v-for="item in $statusTask" :value="item.id">{{ item.label }} &nbsp;</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div :class="{'col-md-7': $store.state.user.role == 'staff', 'col-md-4': $store.state.user.role != 'staff'}">
                                             <flat-pickr
                                             v-model="params.dateRange"
                                             :config="config"
