@@ -41,10 +41,7 @@
                                                 <label class="form-label">Prioritas <span class="text-danger">*</span></label>
                                                 <Field as="select" name="prioritas" class="form-select select-rounded padding-vertical-10 mb-2" v-model="form.prioritas">
                                                     <option value="">Pilih Prioritas &nbsp;</option>
-                                                    <option value="urgent">URGENT &nbsp;</option>
-                                                    <option value="high">HIGH &nbsp;</option>
-                                                    <option value="medium">MEDIUM &nbsp;</option>
-                                                    <option value="low">LOW &nbsp;</option>
+                                                    <option v-for="item in $priorityTask" :value="item.id">{{ item.label }} &nbsp;</option>
                                                 </Field>
                                                 <ErrorMessage name="prioritas" :class="'text-danger'" />
                                             </div>

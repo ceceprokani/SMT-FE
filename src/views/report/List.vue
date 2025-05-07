@@ -19,27 +19,29 @@
                                     <h6 class="mb-3">Filter Pencarian</h6>
                                     <div class="row mb-3">
                                         <div class="col-md-3">
-                                            <select class="form-select select-rounded padding-vertical-10" @change="fetchData(1)">
+                                            <select class="form-select select-rounded padding-vertical-10" v-model="params.user_id" @change="fetchData(1)">
                                                 <option value="">Semua  Pengguna &nbsp;</option>
+                                                <option v-for="item in listUser" :value="item.id">{{ item.nama }} &nbsp;</option>
                                             </select>
                                         </div>
                                         <div class="col-md-2">
-                                            <select class="form-select select-rounded padding-vertical-10" @change="fetchData(1)">
+                                            <select class="form-select select-rounded padding-vertical-10" v-model="params.prioritas" @change="fetchData(1)">
                                                 <option value="">Semua  Prioritas &nbsp;</option>
                                                 <option v-for="item in $priorityTask" :value="item.id">{{ item.label }} &nbsp;</option>
                                             </select>
                                         </div>
                                         <div class="col-md-3">
-                                            <select class="form-select select-rounded padding-vertical-10" @change="fetchData(1)">
+                                            <select class="form-select select-rounded padding-vertical-10" v-model="params.status" @change="fetchData(1)">
                                                 <option value="">Semua  Status &nbsp;</option>
                                                 <option v-for="item in $statusTask" :value="item.id">{{ item.label }} &nbsp;</option>
                                             </select>
                                         </div>
                                         <div class="col-md-4">
                                             <flat-pickr
-                                            v-model="dateRange"
+                                            v-model="params.dateRange"
                                             :config="config"
-                                            placeholder="Pilih Rentang Tanggal"
+                                            @change="fetchData(1)"
+                                            placeholder="Pilih Rentang Tanggal Deadline"
                                             class="form-control bg-white fw-bold"
                                             />
                                         </div>
@@ -47,7 +49,7 @@
                                     
                                     <div class="input-group-left">
                                         <i class="mdi mdi-magnify fs-2 input-group-icon"></i>
-                                        <input type="text" class="form-control input-group-form" placeholder="Cari berdasarkan nama atau email disini" v-model="keywords" @input="debouncedHandler">
+                                        <input type="text" class="form-control input-group-form" placeholder="Cari berdasarkan deskripsi tugas disini" v-model="params.keywords" @input="debouncedHandler">
                                     </div>
                                 </div>
                             </div>
@@ -78,19 +80,19 @@
                                                         <td class="middle-item text-wrap">{{ item.deskripsi || '-' }}</td>
                                                         <td class="middle-item text-nowrap">
                                                             <span class="badge bg-danger fs-6" v-if="item.status == 'todo'">Belum Dikerjakan</span>
-                                                            <span class="badge bg-warning fs-6" v-if="item.status == 'ongoing'">Sedang Dikerjakan</span>
+                                                            <span class="badge bg-warning fs-6" v-if="item.status == 'progress'">Sedang Dikerjakan</span>
                                                             <span class="badge bg-success fs-6" v-if="item.status == 'done'">Selesai</span>
                                                         </td>
                                                         <td class="middle-item text-nowrap">
                                                             <div class="text-uppercase fw-bold">{{ item.prioritas }}</div>
                                                         </td>
                                                         <td class="middle-item text-nowrap">
-                                                            <div class="fw-bold">{{ $changeFormatDate(item.tanggal_permintaan) }}</div>
                                                             <div class="text-muted font-size-13">Tanggal Permintaan</div>
+                                                            <div class="fw-bold">{{ $changeFormatDate(item.created_at) }}</div>
                                                         </td>
                                                         <td class="middle-item text-nowrap">
                                                             <div class="text-muted font-size-13">Tanggal Deadline</div>
-                                                            <div class="fw-bold">{{ $changeFormatDate(item.tanggal_deadline) }}</div>
+                                                            <div class="fw-bold">{{ $changeFormatDate(item.deadline) }}</div>
                                                         </td>
                                                     </tr>
                                                 </template>
@@ -107,7 +109,7 @@
                         </div>
                         <div class="row justify-content-center" v-if="pagination.total > 0">
                             <div class="col-auto">
-                                <Pagination :page="pagination.page" :prev="pagination.prev" :next="pagination.next" v-on:fetchData="list"></Pagination>
+                                <Pagination :page="pagination.page" :prev="pagination.prev" :next="pagination.next" v-on:fetchData="fetchData"></Pagination>
                             </div>
                         </div>
                     </div>
@@ -117,7 +119,7 @@
     </main>
 </template>
 <script>
-import {filter, map, debounce} from 'lodash' // library untuk manipulasi array
+import {debounce} from 'lodash' // library untuk manipulasi array
 
 import apiEndPoint from '@/services/api-endpoint'
 import ApiCore from '@/services/core'
@@ -128,51 +130,19 @@ export default {
     name: 'Transaction',
     data() {
         return {
-            list: [
-                {
-                    id: '1',
-                    pemberi_tugas: 'Aldy Wijaya Gustian',
-                    penerima_tugas: 'Galuh Subagja',
-                    deskripsi: 'Buatkan poster imlek',
-                    prioritas: 'urgent',
-                    status: 'todo',
-                    tanggal_permintaan: '2025-04-24 09:00:00',
-                    tanggal_deadline: '2025-05-10 10:00:00',
-                },
-                {
-                    id: '2',
-                    pemberi_tugas: 'Cecep Rokani',
-                    penerima_tugas: 'Aldy Wijaya Gustian',
-                    deskripsi: 'Routing email untuk anank yatim',
-                    prioritas: 'urgent',
-                    status: 'ongoing',
-                    tanggal_permintaan: '2025-04-24 09:00:00',
-                    tanggal_deadline: '2025-05-10 10:00:00',
-                },
-                {
-                    id: '3',
-                    pemberi_tugas: 'Gugun Santoso',
-                    penerima_tugas: 'Aldy Wijaya Gustian',
-                    deskripsi: 'Edit cv a.n. Windah & Tarmi',
-                    prioritas: 'Medium',
-                    status: 'done',
-                    tanggal_permintaan: '2025-04-24 09:00:00',
-                    tanggal_deadline: '2025-05-10 10:00:00',
-                },
-            ],
-            dateRange: '',
+            list: [],
             config: {
                 mode: 'range',
                 dateFormat: 'Y-m-d',
                 altInput: true,
             },
             params: {
-                rw_id: '',
+                user_id: '',
                 status: '',
+                prioritas: '',
                 keywords: '',
+                dateRange: '',
             },
-            status: '',
-            isCheckAll: false,
             pagination: {
                 prev: false,
                 next: false,
@@ -181,16 +151,13 @@ export default {
                 total: 3
             },
             loading: null,
+            listUser: []
         }
-    },
-    computed: {
-        selectedData() {
-            return filter(this.list, function(data) { return data.checked; })
-        },
     },
     components: {FlatPickr},
     mounted() {
-        // this.fetchData(1)
+        this.fetchData(1)
+        this.fetchDataUser()
     },
     created() {
         this.debouncedHandler = debounce(() => {
@@ -203,7 +170,7 @@ export default {
     },
     methods: {
         async fetchData(page=1) {
-            ApiCore.get(apiEndPoint.TRANSACTION, {
+            ApiCore.get(apiEndPoint.REPORT, {
                 page: page,
                 limit: this.pagination.limit,
                 ...this.params
@@ -219,40 +186,13 @@ export default {
                 this.pagination.total   = result.pagination.total
             })
         },
-        async deletedData(data) {
-            // menghapus data admin
-            this.$swal
-                .fire({
-                    title: 'Apakah kamu yakin ?',
-                    html: `Kamu akan menghapus data dengan nama penerima tugas <b>${data.penerima_tugas}</b>`,
-                    icon: 'warning',
-                    showDenyButton: true,
-                    showCancelButton: false,
-                    confirmButtonText: 'Ya',
-                    confirmButtonColor: '#3674B5',
-                    denyButtonColor: '#c0c0c0',
-                    denyButtonText: 'Tidak',
-                })
-                .then(async (result) => {
-                    if (result.isConfirmed) {
-                        try {
-                            const response = await ApiCore.delete(apiEndPoint.TRANSACTION, data.trx_id)
-
-                            if (response.status) {
-                                this.fetchData(1)
-                                this.$toast.success(response.message);
-                            } else {
-                                this.$toast.error(response.message);
-                            }
-                        } catch(error) {
-                            this.$toast.error(error);
-                        }
-                    }
-                });
+        async fetchDataUser() {
+            ApiCore.get(`${apiEndPoint.MASTER_DATA}/list-user`, {}, false).then((result) => {
+                if (result.status) {
+                    this.listUser = result.data
+                }
+            })
         },
-        changeTab(tab) {
-            this.status = tab
-        }
     }
 }
 </script>

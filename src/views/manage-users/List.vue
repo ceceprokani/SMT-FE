@@ -82,7 +82,7 @@
                         </div>
                         <div class="row justify-content-center" v-if="pagination.total > 0">
                             <div class="col-auto">
-                                <Pagination :page="pagination.page" :prev="pagination.prev" :next="pagination.next" v-on:fetchData="paginationData"></Pagination>
+                                <Pagination :page="pagination.page" :prev="pagination.prev" :next="pagination.next" v-on:fetchData="fetchData"></Pagination>
                             </div>
                         </div>
                     </div>
