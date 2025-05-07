@@ -241,12 +241,12 @@ export default {
             this.$swal
                 .fire({
                     title: 'Apakah kamu yakin ?',
-                    html: `Kamu akan menyelesaikan tugas nomor <b>${number}</b>`,
+                    html: status == 'done' ? `Kamu akan menyelesaikan tugas ini` : `Kamu akan mengerjakan tugas ini`,
                     icon: 'warning',
                     showDenyButton: true,
                     showCancelButton: false,
                     confirmButtonText: 'Ya',
-                    confirmButtonColor: '#3674B5',
+                    confirmButtonColor: status == 'done' ? '#0ac074' : '#3674B5',
                     denyButtonColor: '#c0c0c0',
                     denyButtonText: 'Tidak',
                 })
