@@ -77,30 +77,28 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="d-block bg-light p-3 custom-rounded-medium">
-                                            <div>Kolom Komentar</div>
-                                            <div class="spacer-medium"></div>
-                                            <div class="d-block">
-                                                <div class="d-flex justify-content-start">
-                                                    <div class="d-block bg-white custom-rounded-medium border p-3 mb-3" style="width: fit-content;">
-                                                        <div class="text-muted font-size-12 mb-2">20 Mei 2025 20:00</div>
-                                                        <div class="mb-2">Tolong kerjakan task sesuai deskripsi itugas yak</div>
-                                                        <div class="font-size-12">Aldy</div>
+                                            <template v-if="discussion.length">
+                                                <div>Kolom Komentar <span v-if="discussion.length">({{ discussion.length }} pesan)</span></div>
+                                                <div class="spacer-medium"></div>
+                                                <div class="d-block" style="max-height: 250px; overflow-y: auto;" v-if="discussion.length" :class="{'pe-4': discussion.length > 5}">
+                                                    <div class="d-flex" v-for="item in discussion" :class="{'justify-content-start': !item.is_own, 'justify-content-end': item.is_own}">
+                                                        <div class="d-block custom-rounded-medium border px-3 py-2" style="width: fit-content;" :class="{'bg-white': !item.is_own, 'bg-primary text-white text-end': item.is_own, 'mb-3': discussion.length > 1}">
+                                                            <div class="font-size-12 mb-2" :class="{'text-white': item.is_own, 'text-muted': !item.is_own}">{{ $changeFormatDate(item.created_at) }}</div>
+                                                            <div class="mb-2 font-size-14 fw-bold">{{ item.pesan }}</div>
+                                                            <div class="font-size-12">{{ item.nama_user }}</div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="d-flex justify-content-end">
-                                                    <div class="d-block bg-primary custom-rounded-medium border p-3 text-white text-end" style="width: fit-content;">
-                                                        <div class="font-size-12 mb-2">20 Mei 2025 20:00</div>
-                                                        <div class="mb-2">Mantap Pisan Lah</div>
-                                                        <div class="font-size-12">Cecep Rokani</div>
-                                                    </div>
-                                                </div>
+                                            </template>
+                                            <div class="d-flex text-muted justify-content-center my-4" v-else>
+                                                Belum ada komentar pada tugas
                                             </div>
                                         </div>
                                     </div>
                                     <div class="card-footer card-footer-custom-radius-medium bg-white">
                                         <div class="d-grid">
-                                            <textarea class="form-control mb-3" placeholder="Masukan komentar disini" rows="4"></textarea>
-                                            <button type="submit" class="btn btn-primary custom-rounded-medium p-2 mb-2">Kirim Komentar</button>
+                                            <textarea class="form-control mb-3" placeholder="Masukan komentar disini ..." rows="4" v-model="message"></textarea>
+                                            <button type="submit" class="btn btn-primary custom-rounded-medium p-2 mb-2" @click="saveDiscussion" :disabled="!message">KIRIM KOMENTAR</button>
                                         </div>
                                     </div>
                                 </div>
@@ -121,7 +119,9 @@ export default {
     data() {
         return {
             id: this.$route.params.id,
-            detail: {}
+            detail: {},
+            discussion: [],
+            message: '',
         }
     },
     async mounted() {
@@ -131,6 +131,7 @@ export default {
                     this.detail = result.data
                 }
             })
+            this.fetchDataDiscussion()
         }
     },
     methods: {
@@ -165,37 +166,23 @@ export default {
                     }
                 });
         },
-        async changeStatus() {
-            // menghapus data admin
-            this.$swal
-                .fire({
-                    title: 'Apakah kamu yakin ?',
-                    html: `Kamu akan <b>Menyelesaikan</b> tugas ini`,
-                    icon: 'warning',
-                    showDenyButton: true,
-                    showCancelButton: false,
-                    confirmButtonText: 'Ya',
-                    confirmButtonColor: '#3674B5',
-                    denyButtonColor: '#c0c0c0',
-                    denyButtonText: 'Tidak',
-                })
-                .then(async (result) => {
-                    if (result.isConfirmed) {
-                        try {
-                            this.$toast.success('Berhasil');
-                            this.$router.push({name: 'task'})
-                            
-                            if (result.status) {
-                                // this.fetchData(1)
-                                this.$toast.success(result.message);
-                            } else {
-                                this.$toast.error(result.message);
-                            }
-                        } catch(error) {
-                            this.$toast.error(error);
-                        }
-                    }
-                });
+        async fetchDataDiscussion(withLoader=true) {
+            ApiCore.get(`${apiEndPoint.TASK}/discussion`, {tugas_id: this.$route.params.id}, withLoader).then((result) => {
+                if (result.status) {
+                    this.discussion = result.data
+                }
+            })
+        },
+        async saveDiscussion() {
+            const response = await ApiCore.store(`${apiEndPoint.TASK}/save-discussion`, {tugas_id: this.$route.params.id, pesan: this.message})
+
+            if (response.status) {
+                this.fetchDataDiscussion(false)
+                this.message = null
+                this.$toast.success(response.message);
+            } else {
+                this.$toast.error(response.message);
+            }
         },
     }
 }
