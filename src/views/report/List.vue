@@ -9,7 +9,7 @@
                             <div class="col-12 mt-3">
                                 <div class="page-title-box d-sm-flex align-items-start justify-content-between">
                                     <h4 class="mb-sm-0">Laporan Tugas</h4>
-                                    <button type="button" class="btn bg-white border custom-rounded-medium"><div class="d-flex"><i class="ri-download-2-line me-2"></i> Download Excel</div></button>
+                                    <button type="button" class="btn bg-white border custom-rounded-medium"><div class="d-flex"><i class="ri-download-2-line me-2"></i> Download Laporan</div></button>
                                 </div>
                             </div>
                         </div>

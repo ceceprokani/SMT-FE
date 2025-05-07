@@ -46,7 +46,7 @@
                             <div class="col-md-12">
                                 <div class="input-group-left">
                                     <i class="mdi mdi-magnify fs-2 input-group-icon"></i>
-                                    <input type="text" class="form-control input-group-form" placeholder="Cari berdasarkan nama atau email disini" v-model="params.keywords">
+                                    <input type="text" class="form-control input-group-form" placeholder="Cari berdasarkan deskripsi tugas disini" v-model="params.keywords" @input="debouncedHandler">
                                 </div>
                             </div>
                         </div>
