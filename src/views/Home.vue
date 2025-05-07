@@ -25,7 +25,7 @@
                                             </div>
                                             <div class="d-block ms-3">
                                                 <p class="mb-1 text-dark">Total Tugas</p>
-                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.total_task || 0}}</h1> <span class="font-size-12 mb-1">tugas</span></div>
+                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.todo || 0}}</h1> <span class="font-size-12 mb-1">tugas</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -44,7 +44,7 @@
                                             </div>
                                             <div class="d-block ms-3">
                                                 <p class="mb-1 text-dark">Tugas Selesai</p>
-                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.total_task_done || 0}}</h1> <span class="font-size-12 mb-1">tugas</span></div>
+                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.done || 0}}</h1> <span class="font-size-12 mb-1">tugas</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -63,7 +63,7 @@
                                             </div>
                                             <div class="d-block ms-3">
                                                 <p class="mb-1 text-dark">Sedang Dikerjakan</p>
-                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.total_customer}}</h1> <span class="font-size-12 mb-1">tugas</span></div>
+                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.progress}}</h1> <span class="font-size-12 mb-1">tugas</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -82,7 +82,7 @@
                                             </div>
                                             <div class="d-block ms-3">
                                                 <p class="mb-1 text-dark">Belum Dikerjakan</p>
-                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.total_task_undone || 0}}</h1><span class="font-size-12 mb-1">tugas</span></div>
+                                                <div class="d-flex align-items-end"><h1 class="mb-0 me-2 fw-bold text-primary">{{statistic.all || 0}}</h1><span class="font-size-12 mb-1">tugas</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -97,21 +97,17 @@
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="card card-body custom-rounded-medium">
-                                    <h6>Grafik Tugas Keseluruhan</h6>
-                                    <div class="bg-light custom-rounded-medium">
-                                        <div class="spacer-medium">&nbsp;</div>
-                                        <div class="spacer-medium">&nbsp;</div>
-                                        <div class="spacer-medium">&nbsp;</div>
+                                    <h6 class="mb-4">Grafik Tugas Keseluruhan</h6>
+                                    <div class="bg-light custom-rounded-medium" style="height: 400px">
+                                        <Line :chartData="chartData" v-if="!fetching && chartData.datasets.length" />
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="card card-body custom-rounded-medium">
-                                    <h6>Progress Pengerjaan Tugas</h6>
-                                    <div class="bg-light custom-rounded-medium">
-                                        <div class="spacer-medium">&nbsp;</div>
-                                        <div class="spacer-medium">&nbsp;</div>
-                                        <div class="spacer-medium">&nbsp;</div>
+                                    <h6 class="mb-4">Progress Pengerjaan Tugas</h6>
+                                    <div class="bg-light custom-rounded-medium" style="height: 400px">
+                                        <Polar :chartData="chartDataProgressPengerjaan" v-if="!fetching && chartDataProgressPengerjaan.datasets.length" />
                                     </div>
                                 </div>
                             </div>
@@ -123,25 +119,78 @@
     </main>
 </template>
 <script>
-import { find } from 'lodash'
+import apiEndPoint from '@/services/api-endpoint'
+import ApiCore from '@/services/core'
+
+import Line from '@/components/chart/Line.vue'
+import Polar from '@/components/chart/Polar.vue'
+import { map } from 'lodash'
     
 export default {
     name: 'Home',
     data() {
         return {
             statistic: {
-                total_customer: 0,
-                total_staff: 0,
-                total_admin: 0,
+                todo: 0,
+                progress: 0,
+                done: 0,
+                all: 0,
             },
-            listTrx: [],
+            fetching: false,
+            chartDataProgressPengerjaan: {
+                labels: ['Belum Dikerjakan', 'Sedang Dikerjakan', 'Sudah Dikerjakan'],
+                datasets: []
+            },
+            chartData: {
+                labels: [],
+                datasets: []
+            },
         }
     },
+    components: {Line, Polar},
     mounted() {
-        setTimeout(() => {
-        }, 1000);
+        this.fetchDataStatistic()
     },
     methods: {
+        async fetchDataStatistic() {
+            this.fetching = true
+            ApiCore.get(`${apiEndPoint.DASHBOARD}/statistic`, {}, false).then((result) => {
+                this.fetching = false
+                if (result.status) {
+                    this.statistic = result.data.statistic
+                    
+                    this.chartDataProgressPengerjaan.datasets = [{
+                        label: 'Distribusi Warna',
+                        data: [this.statistic.todo, this.statistic.progress, this.statistic.done],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.5)',
+                            'rgba(255, 205, 86, 0.5)',
+                            'rgba(75, 192, 192, 0.5)',
+                        ]
+                    }]
+
+                    if (result.data.statistic_by_month) {
+                        this.chartData.labels = map(this.$listMonth, 'label')
+
+                        let dataSetsStatisticByMonth = []
+
+                        this.$listMonth.forEach(element => {
+                            dataSetsStatisticByMonth.push(result.data.statistic_by_month[parseInt(element.id)] || NaN)
+                        });
+                            
+                        this.chartData.datasets = [{
+                            label: 'Total Tugas',
+                            data: dataSetsStatisticByMonth,
+                            borderColor: 'blue',
+                            fill: false,
+                            tension: 0.5, // Garis lurus
+                        }]
+                    }
+                }
+            }).catch(() => {
+                this.fetching = false
+            })
+        },
     }
 }
 </script>
