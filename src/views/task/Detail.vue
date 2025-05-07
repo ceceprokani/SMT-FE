@@ -54,14 +54,14 @@
                                         </div>
                                         <div class="form-group mb-3">
                                             <label>Catatan Tugas</label>
-                                            <div class="bg-light custom-rounded-medium px-3 py-2 h6 lh-base">{{ detail.catatan }}</div>
+                                            <div class="bg-light custom-rounded-medium px-3 py-2 h6 lh-base">{{ detail.catatan || '-' }}</div>
                                         </div>
                                     </div>
                                     <div class="card-footer card-footer-custom-radius-medium bg-white">
                                         <div class="d-grid">
                                             <template v-if="['progress', 'todo'].indexOf(detail.status) != -1">
-                                                <button type="button" class="btn btn-primary custom-rounded-medium p-2 mb-2" @click="updateStatus('done')" v-if="detail.status == 'progress'">Selesaikan Tugas Ini</button>
-                                                <button type="button" class="btn btn-primary custom-rounded-medium p-2 mb-2" @click="updateStatus('progress')" v-if="detail.status == 'todo'">Kerjakan Tugas Ini</button>
+                                                <button type="button" class="btn btn-success custom-rounded-medium p-2 mb-2" @click="updateStatus('done')" v-if="detail.status == 'progress'">SELESAIKAN TUGAS INI</button>
+                                                <button type="button" class="btn btn-primary custom-rounded-medium p-2 mb-2" @click="updateStatus('progress')" v-if="detail.status == 'todo'">KERJAKAN TUGAS INI</button>
                                             </template>
                                             <div v-else class="alert alert-success custom-rounded-medium text-center fw-bold">
                                                 TUGAS TELAH SELESAI
@@ -126,21 +126,24 @@ export default {
     },
     async mounted() {
         if (this.id) {
+            this.fetchData()
+            this.fetchDataDiscussion()
+        }
+    },
+    methods: {
+        async fetchData() {
             ApiCore.get(`${apiEndPoint.TASK}/detail`, {id: this.$route.params.id}).then((result) => {
                 if (result.status) {
                     this.detail = result.data
                 }
             })
-            this.fetchDataDiscussion()
-        }
-    },
-    methods: {
+        },
         async updateStatus(status) {
             // menghapus data admin
             this.$swal
                 .fire({
                     title: 'Apakah kamu yakin ?',
-                    html: `Kamu akan mengubah status tugas ini,`,
+                    html: status == 'progress' ? `Kamu akan mengerjakan tugas ini` : 'Kamu akan menyelesaikan tugas ini',
                     icon: 'warning',
                     showDenyButton: true,
                     showCancelButton: false,
@@ -155,7 +158,11 @@ export default {
                             const response = await ApiCore.store(`${apiEndPoint.TASK}/update-status`, {id: this.id, status: status})
 
                             if (response.status) {
-                                this.fetchData(1)
+                                if (status == 'progress')
+                                    this.fetchData()
+                                else
+                                    this.$router.push({name: 'task'})
+
                                 this.$toast.success(response.message);
                             } else {
                                 this.$toast.error(response.message);

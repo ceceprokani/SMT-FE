@@ -19,23 +19,23 @@
                                 <div class="card card-body custom-rounded-medium border">
                                     <ul class="nav nav-pills" role="tablist" style="gap: 0.7rem">
                                         <li class="nav-item waves-effect waves-light" role="presentation">
-                                            <a class="nav-link active custom-rounded-medium" data-bs-toggle="tab" role="tab" aria-selected="true" @click="changeTab(0)">
-                                                <i class="ri-calendar-todo-fill me-2 align-middle fs-5"></i> <span class="d-md-inline-block">Semua Tugas</span> <span class="badge ms-1" :class="{'bg-white text-primary': status == 0, 'bg-danger text-white': status != 0}">20</span> 
+                                            <a class="nav-link active custom-rounded-medium" data-bs-toggle="tab" role="tab" aria-selected="true" @click="changeTab('')">
+                                                <i class="ri-calendar-todo-fill me-2 align-middle fs-5"></i> <span class="d-md-inline-block">Semua Tugas</span> <span class="badge ms-1" :class="{'bg-white text-primary': params.status == '', 'bg-danger text-white': params.status != ''}" v-if="statistic.all">{{ statistic.all }}</span> 
                                             </a>
                                         </li>
                                         <li class="nav-item waves-effect waves-light" role="presentation">
-                                            <a class="nav-link custom-rounded-medium" data-bs-toggle="tab" role="tab" aria-selected="true" @click="changeTab(1)">
-                                                <i class="ri-calendar-check-fill me-2 align-middle fs-5"></i> <span class="d-md-inline-block">Tugas Selesai</span> <span class="badge ms-1" :class="{'bg-white text-primary': status == 1, 'bg-success text-white': status != 1}">15</span>
+                                            <a class="nav-link custom-rounded-medium" data-bs-toggle="tab" role="tab" aria-selected="false" @click="changeTab('todo')">
+                                                <i class="ri-close-circle-fill me-2 align-middle fs-5"></i> <span class="d-md-inline-block">Belum Dikerjakan</span> <span class="badge ms-1" :class="{'bg-white text-primary': params.status == 'todo', 'bg-danger text-white': params.status != 'todo'}" v-if="statistic.todo">{{ statistic.todo }}</span> 
                                             </a>
                                         </li>
                                         <li class="nav-item waves-effect waves-light" role="presentation">
-                                            <a class="nav-link custom-rounded-medium" data-bs-toggle="tab" role="tab" aria-selected="false" @click="changeTab(2)">
-                                                <i class="ri-flashlight-fill me-2 align-middle fs-5"></i> <span class="d-md-inline-block">Sedang Dikerjakan</span> <span class="badge ms-1" :class="{'bg-white text-primary': status == 2, 'bg-warning text-white': status != 2}">1</span> 
+                                            <a class="nav-link custom-rounded-medium" data-bs-toggle="tab" role="tab" aria-selected="false" @click="changeTab('progress')">
+                                                <i class="ri-flashlight-fill me-2 align-middle fs-5"></i> <span class="d-md-inline-block">Sedang Dikerjakan</span> <span class="badge ms-1" :class="{'bg-white text-primary': params.status == 'progress', 'bg-warning text-white': params.status != 'progress'}" v-if="statistic.progress">{{ statistic.progress }}</span> 
                                             </a>
                                         </li>
                                         <li class="nav-item waves-effect waves-light" role="presentation">
-                                            <a class="nav-link custom-rounded-medium" data-bs-toggle="tab" role="tab" aria-selected="false" @click="changeTab(3)">
-                                                <i class="ri-close-circle-fill me-2 align-middle fs-5"></i> <span class="d-md-inline-block">Belum Dikerjakan</span> <span class="badge ms-1" :class="{'bg-white text-primary': status == 3, 'bg-danger text-white': status != 3}">2</span> 
+                                            <a class="nav-link custom-rounded-medium" data-bs-toggle="tab" role="tab" aria-selected="true" @click="changeTab('done')">
+                                                <i class="ri-calendar-check-fill me-2 align-middle fs-5"></i> <span class="d-md-inline-block">Tugas Selesai</span> <span class="badge ms-1" :class="{'bg-white text-primary': params.status == 'done', 'bg-success text-white': params.status != 'done'}" v-if="statistic.done">{{ statistic.done }}</span>
                                             </a>
                                         </li>
                                     </ul>
@@ -77,7 +77,7 @@
                                                         <td class="middle-item text-wrap">{{ item.deskripsi || '-' }}</td>
                                                         <td class="middle-item text-nowrap">
                                                             <span class="badge bg-danger fs-6" v-if="item.status == 'todo'">Belum Dikerjakan</span>
-                                                            <span class="badge bg-warning fs-6" v-if="item.status == 'ongoing'">Sedang Dikerjakan</span>
+                                                            <span class="badge bg-warning fs-6" v-if="item.status == 'progress'">Sedang Dikerjakan</span>
                                                             <span class="badge bg-success fs-6" v-if="item.status == 'done'">Selesai</span>
                                                             <div class="d-flex mt-1 align-items-center">
                                                                 <i class="ri-alert-line me-1 fs-5 text-danger" v-if="item.prioritas == 'urgent'"></i>
@@ -102,8 +102,8 @@
                                                                 <router-link :to="`/task/detail/${item.id}`" class="btn btn-primary button-rounded ms-2 fw-bold border-0" type="button"><div class="d-flex"><i class="ri-search-line me-1"></i>Detail</div></router-link>
                                                                 <button type="button" class="btn bg-white border button-rounded ms-2 fw-bold" @click="updateStatus(index + 1, 'done')" v-if="item.status == 'progress'"><div class="d-flex"><i class="ri-checkbox-circle-line me-1"></i>Selesaikan</div></button>
                                                                 <button type="button" class="btn bg-white border button-rounded ms-2 fw-bold" @click="updateStatus(index + 1, 'progress')" v-if="item.status != 'done' && item.penerima_tugas_id == $store.state?.user?.id"><div class="d-flex"><i class="ri-flashlight-fill me-1"></i>Kerjakan</div></button>
-                                                                <router-link :to="`/task/form/${item.id}`" class="btn btn-square bg-white border button-rounded ms-2" v-if="item.status != 'done'"><div class="d-flex"><i class="ri-pencil-line fs-5"></i></div></router-link>
-                                                                <button class="btn btn-square bg-white border button-rounded ms-2" type="button" @click="deletedData(item)" v-if="item.status != 'done'"><div class="d-flex"><i class="ri-delete-bin-5-line"></i></div></button>
+                                                                <router-link :to="`/task/form/${item.id}`" class="btn btn-square bg-white border button-rounded ms-2" v-if="item.status != 'done' && item.is_own"><div class="d-flex"><i class="ri-pencil-line fs-5"></i></div></router-link>
+                                                                <button class="btn btn-square bg-white border button-rounded ms-2" type="button" @click="deletedData(item)" v-if="item.status != 'done' && item.is_own"><div class="d-flex"><i class="ri-delete-bin-5-line"></i></div></button>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -121,7 +121,7 @@
                         </div>
                         <div class="row justify-content-center" v-if="pagination.total > 0">
                             <div class="col-auto">
-                                <Pagination :page="pagination.page" :prev="pagination.prev" :next="pagination.next" v-on:fetchData="list"></Pagination>
+                                <Pagination :page="pagination.page" :prev="pagination.prev" :next="pagination.next" v-on:fetchData="fetchData"></Pagination>
                             </div>
                         </div>
                     </div>
@@ -146,7 +146,6 @@ export default {
                 status: '',
                 keywords: '',
             },
-            status: '',
             isCheckAll: false,
             pagination: {
                 prev: false,
@@ -156,6 +155,11 @@ export default {
                 total: 1
             },
             loading: null,
+            statistic: {
+                todo: 0,
+                progress: 0,
+                done: 0
+            }
         }
     },
     computed: {
@@ -165,6 +169,7 @@ export default {
     },
     mounted() {
         this.fetchData(1)
+        this.fetchDataStatistic()
     },
     created() {
         this.debouncedHandler = debounce(() => {
@@ -191,6 +196,13 @@ export default {
                 this.pagination.next    = result.pagination.next
                 this.pagination.page    = result.pagination.page
                 this.pagination.total   = result.pagination.total
+            })
+        },
+        async fetchDataStatistic() {
+            ApiCore.get(`${apiEndPoint.TASK}/statistic`, {}, false).then((result) => {
+                if (result.status) {
+                    this.statistic = result.data
+                }
             })
         },
         async deletedData(data) {
@@ -245,6 +257,7 @@ export default {
 
                             if (response.status) {
                                 this.fetchData(1)
+                                this.fetchDataStatistic()
                                 this.$toast.success(response.message);
                             } else {
                                 this.$toast.error(response.message);
@@ -256,7 +269,8 @@ export default {
                 });
         },
         changeTab(tab) {
-            this.status = tab
+            this.params.status = tab
+            this.fetchData(1)
         }
     }
 }
