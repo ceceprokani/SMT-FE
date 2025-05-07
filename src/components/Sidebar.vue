@@ -69,7 +69,7 @@ export default {
                     title: 'Daftar Tugas',
                     icon: 'mdi mdi-clipboard-list-outline',
                     url: '/task',
-                    role: ['superadmin'],
+                    role: ['superadmin', 'admin', 'staff'],
                 },
                 {
                     title: 'Laporan Tugas',

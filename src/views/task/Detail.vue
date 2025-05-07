@@ -80,7 +80,7 @@
                                             <template v-if="discussion.length">
                                                 <div>Kolom Komentar <span v-if="discussion.length">({{ discussion.length }} pesan)</span></div>
                                                 <div class="spacer-medium"></div>
-                                                <div class="d-block" style="max-height: 250px; overflow-y: auto;" v-if="discussion.length" :class="{'pe-4': discussion.length > 5}">
+                                                <div class="d-block" style="max-height: 250px; overflow-y: auto;" v-if="discussion.length" :class="{'pe-4': discussion.length > 5}" ref="contentMessage">
                                                     <div class="d-flex" v-for="item in discussion" :class="{'justify-content-start': !item.is_own, 'justify-content-end': item.is_own}">
                                                         <div class="d-block custom-rounded-medium border px-3 py-2" style="width: fit-content;" :class="{'bg-white': !item.is_own, 'bg-primary text-white text-end': item.is_own, 'mb-3': discussion.length > 1}">
                                                             <div class="font-size-12 mb-2" :class="{'text-white': item.is_own, 'text-muted': !item.is_own}">{{ $changeFormatDate(item.created_at) }}</div>
@@ -122,13 +122,21 @@ export default {
             detail: {},
             discussion: [],
             message: '',
+            intervalId: null
         }
     },
     async mounted() {
         if (this.id) {
             this.fetchData()
-            this.fetchDataDiscussion()
+
+            this.intervalId = setInterval(() => {
+                this.fetchDataDiscussion(false)
+            }, 2000);
         }
+    },
+    beforeDestroy() {
+        // Hapus interval saat komponen akan dihancurkan
+        clearInterval(this.intervalId);
     },
     methods: {
         async fetchData() {
@@ -184,13 +192,27 @@ export default {
             const response = await ApiCore.store(`${apiEndPoint.TASK}/save-discussion`, {tugas_id: this.$route.params.id, pesan: this.message})
 
             if (response.status) {
-                this.fetchDataDiscussion(false)
+                this.discussion.push({
+                    pesan: this.message,
+                    nama_user: this.$store.state.user.name,
+                    is_own: true,
+                    created_at: new Date()
+                })
                 this.message = null
-                this.$toast.success(response.message);
+                setTimeout(() => {
+                    this.scrollToTop()
+                }, 500);
             } else {
                 this.$toast.error(response.message);
             }
         },
+        scrollToTop() {
+            const el = this.$refs.contentMessage;
+            el.scrollTo({
+                top: el.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
     }
 }
 </script>
