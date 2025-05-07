@@ -92,16 +92,16 @@
                                                                 <div class="text-muted font-size-13">Tanggal Permintaan</div>
                                                                 <div class="fw-bold">{{ $changeFormatDate(item.created_at) }}</div>
                                                             </div>
-                                                            <diiv>
+                                                            <div>
                                                                 <div class="text-muted font-size-13">Tanggal Deadline</div>
                                                                 <div class="fw-bold">{{ $changeFormatDate(item.deadline, 'DD MMMM YYYY') }}</div>
-                                                            </diiv>
+                                                            </div>
                                                         </td>
                                                         <td class="middle-item">
                                                             <div class="d-flex justify-content-end align-items-center">
                                                                 <router-link :to="`/task/detail/${item.id}`" class="btn btn-primary button-rounded ms-2 fw-bold border-0" type="button"><div class="d-flex"><i class="ri-search-line me-1"></i>Detail</div></router-link>
-                                                                <button type="button" class="btn bg-white border button-rounded ms-2 fw-bold" @click="updateStatus(index + 1, 'done')" v-if="item.status == 'progress'"><div class="d-flex"><i class="ri-checkbox-circle-line me-1"></i>Selesaikan</div></button>
-                                                                <button type="button" class="btn bg-white border button-rounded ms-2 fw-bold" @click="updateStatus(index + 1, 'progress')" v-if="item.status != 'done' && item.penerima_tugas_id == $store.state?.user?.id"><div class="d-flex"><i class="ri-flashlight-fill me-1"></i>Kerjakan</div></button>
+                                                                <button type="button" class="btn bg-white border button-rounded ms-2 fw-bold" @click="updateStatus(item.id, 'done')" v-if="item.status == 'progress'"><div class="d-flex"><i class="ri-checkbox-circle-line me-1"></i>Selesaikan</div></button>
+                                                                <button type="button" class="btn bg-white border button-rounded ms-2 fw-bold" @click="updateStatus(item.id, 'progress')" v-if="item.status != 'done' && item.penerima_tugas_id == $store.state?.user?.id"><div class="d-flex"><i class="ri-flashlight-fill me-1"></i>Kerjakan</div></button>
                                                                 <router-link :to="`/task/form/${item.id}`" class="btn btn-square bg-white border button-rounded ms-2" v-if="item.status != 'done' && item.is_own"><div class="d-flex"><i class="ri-pencil-line fs-5"></i></div></router-link>
                                                                 <button class="btn btn-square bg-white border button-rounded ms-2" type="button" @click="deletedData(item)" v-if="item.status != 'done' && item.is_own"><div class="d-flex"><i class="ri-delete-bin-5-line"></i></div></button>
                                                             </div>
@@ -236,7 +236,7 @@ export default {
                     }
                 });
         },
-        async updateStatus(number, status) {
+        async updateStatus(id, status) {
             // menghapus data admin
             this.$swal
                 .fire({
@@ -253,7 +253,7 @@ export default {
                 .then(async (result) => {
                     if (result.isConfirmed) {
                         try {
-                            const response = await ApiCore.store(`${apiEndPoint.TASK}/update-status`, {id: data.id, status: status})
+                            const response = await ApiCore.store(`${apiEndPoint.TASK}/update-status`, {id: id, status: status})
 
                             if (response.status) {
                                 this.fetchData(1)
