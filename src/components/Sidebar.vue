@@ -75,7 +75,7 @@ export default {
                     title: 'Laporan Tugas',
                     icon: 'mdi mdi-file-document-multiple-outline',
                     url: '/report',
-                    role: ['superadmin'],
+                    role: ['superadmin', 'admin', 'staff'],
                 },
             ])
 
