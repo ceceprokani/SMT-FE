@@ -125,17 +125,17 @@ export default {
             intervalId: null
         }
     },
-    async mounted() {
-        if (this.id) {
-            this.fetchData()
+    mounted() {
+        this.intervalId = setInterval(() => {
+            this.fetchDataDiscussion(false)
+        }, 2000);
 
-            this.intervalId = setInterval(() => {
-                this.fetchDataDiscussion(false)
-            }, 2000);
-        }
+        this.fetchData()
     },
     beforeDestroy() {
-        // Hapus interval saat komponen akan dihancurkan
+        clearInterval(this.intervalId);
+    },
+    unmounted() {
         clearInterval(this.intervalId);
     },
     methods: {
