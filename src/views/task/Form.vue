@@ -6,8 +6,8 @@
                     <div class="container-fluid">
                         <!-- title of page -->
                         <div class="row justify-content-center">
-                            <div class="col-8 mt-3">
-                                <div class="page-title-box d-sm-flex align-items-center">
+                            <div class="col-md-8 mt-3">
+                                <div class="page-title-box d-flex align-items-center">
                                     <router-link to="/task" class="btn btn-square bg-white border custom-rounded-medium me-3"><i class="ri-arrow-left-s-line fs-4"></i></router-link>
                                     <h4 class="mb-sm-0">Form Data Tugas</h4>
                                 </div>
