@@ -47,7 +47,12 @@
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Deadline Tugas <span class="text-danger">*</span></label>
-                                                <Field type="date" name="deadline" class="form-control mb-2" v-model="form.deadline" />
+                                                <Field
+                                                    type="datetime-local"
+                                                    name="deadline"
+                                                    class="form-control mb-2"
+                                                    v-model="form.deadline"
+                                                />
                                                 <ErrorMessage name="deadline" :class="'text-danger'" />
                                             </div>
                                             <div class="form-group mb-3">
