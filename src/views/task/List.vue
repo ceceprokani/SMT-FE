@@ -94,7 +94,7 @@
                                                             </div>
                                                             <div>
                                                                 <div class="text-muted font-size-13">Tanggal Deadline</div>
-                                                                <div class="fw-bold">{{ $changeFormatDate(item.deadline, 'DD MMMM YYYY') }}</div>
+                                                                <div class="fw-bold">{{ $changeFormatDate(item.deadline) }}</div>
                                                             </div>
                                                         </td>
                                                         <td class="middle-item">

@@ -50,7 +50,7 @@
                                         </div>
                                         <div class="form-group mb-3">
                                             <label>Deadline</label>
-                                            <div class="bg-light custom-rounded-medium px-3 py-2 h5 fw-bold" v-if="detail.deadline">{{ $changeFormatDate(detail.deadline, 'DD MMMM YYYY') }}</div>
+                                            <div class="bg-light custom-rounded-medium px-3 py-2 h5 fw-bold" v-if="detail.deadline">{{ $changeFormatDate(detail.deadline) }}</div>
                                         </div>
                                         <div class="form-group mb-3">
                                             <label>Catatan Tugas</label>
@@ -59,13 +59,26 @@
                                     </div>
                                     <div class="card-footer card-footer-custom-radius-medium bg-white">
                                         <div class="d-grid">
-                                            <template v-if="['progress', 'todo'].indexOf(detail.status) != -1">
-                                                <button type="button" class="btn btn-success custom-rounded-medium p-2 mb-2" @click="updateStatus('done')" v-if="detail.status == 'progress'">SELESAIKAN TUGAS INI</button>
-                                                <button type="button" class="btn btn-primary custom-rounded-medium p-2 mb-2" @click="updateStatus('progress')" v-if="detail.status == 'todo'">KERJAKAN TUGAS INI</button>
+                                            <template v-if="detail.penerima_tugas_id == $store.state.user.id">
+                                                <template v-if="['progress', 'todo'].indexOf(detail.status) != -1">
+                                                    <button type="button" class="btn btn-success custom-rounded-medium p-2 mb-2 fw-bold" @click="updateStatus('done')" v-if="detail.status == 'progress'">SELESAIKAN TUGAS INI</button>
+                                                    <button type="button" class="btn btn-primary custom-rounded-medium p-2 mb-2 fw-bold" @click="updateStatus('progress')" v-if="detail.status == 'todo'">KERJAKAN TUGAS INI</button>
+                                                </template>
+                                                <div v-else class="alert alert-success custom-rounded-medium text-center fw-bold">
+                                                    TUGAS TELAH SELESAI
+                                                </div>
                                             </template>
-                                            <div v-else class="alert alert-success custom-rounded-medium text-center fw-bold">
-                                                TUGAS TELAH SELESAI
-                                            </div>
+                                            <template v-else>
+                                                <div v-if="detail.status == 'todo'" class="alert alert-dark custom-rounded-medium text-center fw-bold">
+                                                    BELUM DIKERJAKAN
+                                                </div>
+                                                <div v-if="detail.status == 'progress'" class="alert alert-warning custom-rounded-medium text-center fw-bold">
+                                                    SEDANG DIKERJAKAN
+                                                </div>
+                                                <div v-if="detail.status == 'done'" class="alert alert-success custom-rounded-medium text-center fw-bold">
+                                                    TUGAS TELAH SELESAI
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
                                 </div>
