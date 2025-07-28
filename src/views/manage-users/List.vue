@@ -32,7 +32,21 @@
                         <div class="spacer-medium"></div>
                         <div class="row">
                             <div class="col-md-12">
-                                <p>Menampilkan {{pagination.total}} data pengguna</p>
+                                <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+                                    <div class="flex-shrink-0">Menampilkan {{pagination.total}} data pengguna</div>
+                                    <div class="d-flex align-items-center flex-shrink-0">
+                                        <label for="limitDropdown" class="me-2 mb-0 fw-normal">Tampilkan data per halaman</label>
+                                        <select id="limitDropdown" class="form-select select-rounded w-auto" v-model.number="pagination.limit" @change="fetchData(1)">
+                                            <option :value="5">5</option>
+                                            <option :value="10">10</option>
+                                            <option :value="20">20</option>
+                                            <option :value="30">30</option>
+                                            <option :value="40">40</option>
+                                            <option :value="50">50</option>
+                                            <option :value="100">100</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="card card-body custom-rounded-medium p-0">
                                     <div class="table-responsive">
                                         <table class="table table-bordered table-striped mb-0">

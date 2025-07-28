@@ -53,7 +53,21 @@
                         <div class="spacer-medium"></div>
                         <div class="row">
                             <div class="col-md-12">
-                                <p>Menampilkan {{pagination.total}} data tugas</p>
+                                <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+                                    <div class="flex-shrink-0">Menampilkan {{pagination.total}} data tugas</div>
+                                    <div class="d-flex align-items-center flex-shrink-0">
+                                        <label for="limitDropdown" class="me-2 mb-0 fw-normal">Tampilkan data per halaman</label>
+                                        <select id="limitDropdown" class="form-select select-rounded w-auto" v-model.number="pagination.limit" @change="fetchData(1)">
+                                            <option :value="5">5</option>
+                                            <option :value="10">10</option>
+                                            <option :value="20">20</option>
+                                            <option :value="30">30</option>
+                                            <option :value="40">40</option>
+                                            <option :value="50">50</option>
+                                            <option :value="100">100</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="card card-body custom-rounded-medium p-0">
                                     <div class="table-responsive">
                                         <table class="table table-bordered table-striped mb-0">
@@ -100,7 +114,7 @@
                                                         <td class="middle-item">
                                                             <div class="d-flex justify-content-end align-items-center">
                                                                 <router-link :to="`/task/detail/${item.id}`" class="btn btn-primary button-rounded ms-2 fw-bold border-0" type="button"><div class="d-flex"><i class="ri-search-line me-1"></i>Detail</div></router-link>
-                                                                <button type="button" class="btn bg-white border button-rounded ms-2 fw-bold" @click="updateStatus(item.id, 'done')" v-if="item.status == 'progress'"><div class="d-flex"><i class="ri-checkbox-circle-line me-1"></i>Selesaikan</div></button>
+                                                                <button type="button" class="btn bg-white border button-rounded ms-2 fw-bold" @click="updateStatus(item.id, 'done')" v-if="item.status == 'progress' && item.penerima_tugas_id == $store.state?.user?.id"><div class="d-flex"><i class="ri-checkbox-circle-line me-1"></i>Selesaikan</div></button>
                                                                 <button type="button" class="btn bg-white border button-rounded ms-2 fw-bold" @click="updateStatus(item.id, 'progress')" v-if="item.status == 'todo' && item.penerima_tugas_id == $store.state?.user?.id"><div class="d-flex"><i class="ri-flashlight-fill me-1"></i>Kerjakan</div></button>
                                                                 <router-link :to="`/task/form/${item.id}`" class="btn btn-square bg-white border button-rounded ms-2" v-if="item.status != 'done' && item.is_own"><div class="d-flex"><i class="ri-pencil-line fs-5"></i></div></router-link>
                                                                 <button class="btn btn-square bg-white border button-rounded ms-2" type="button" @click="deletedData(item)" v-if="item.status != 'done' && item.is_own"><div class="d-flex"><i class="ri-delete-bin-5-line"></i></div></button>

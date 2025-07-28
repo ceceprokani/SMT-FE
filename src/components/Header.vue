@@ -19,7 +19,7 @@
                 </button>
             </div>
             <div class="d-flex">
-                <div class="dropdown d-inline-block">
+                <div class="d-none dropdown d-inline-block">
                     <button type="button" class="btn header-item noti-icon waves-effect" id="page-header-notifications-dropdown"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="ri-notification-3-line"></i>
