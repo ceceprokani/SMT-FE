@@ -79,8 +79,8 @@
                                                             </div>
                                                             <ErrorMessage name="password" :class="'text-danger'" />
                                                         </div>
-                                                        <div class="d-flex mb-3 fw-bold" v-if="passwordStrength" :class="{'text-danger': passwordStrength.level < 2, 'text-primary': passwordStrength.level < 4, 'text-success': passwordStrength.level >= 4}">
-                                                            <i class="mdi me-2" :class="{'mdi-alert': passwordStrength.level < 3, 'mdi-check-circle': passwordStrength.level >= 3}"></i>
+                                                        <div class="d-flex mb-3 fw-bold" v-if="passwordStrength" :class="{'text-danger': passwordStrength.level < 2, 'text-primary': passwordStrength.level <= 4, 'text-success': passwordStrength.level >= 5}">
+                                                            <i class="mdi me-2" :class="{'mdi-alert': passwordStrength.level < 5, 'mdi-check-circle': passwordStrength.level >= 5}"></i>
                                                             <div>{{passwordStrength.message}}</div>
                                                         </div>
                                                         <div class="form-group mb-3">
@@ -157,25 +157,41 @@ export default {
     computed: {
         passwordStrength() {
             const rules = [
-                { regex: /.{8,}/, message: 'Password lemah', level: 1 },
-                { regex: /[a-z]/, message: 'Password sedang', level: 2 },
-                { regex: /[A-Z]/, message: 'Password kuat', level: 3 },
-                { regex: /[0-9]/, message: 'Password sangat kuat', level: 4 },
-                { regex: /[\W_]/, message: 'Password sangat kuat', level: 5 }
+                { regex: /.{8,}/, message: 'Password minimal 8 karakter', level: 1 },
+                { regex: /[a-z]/, message: 'Password harus mengandung huruf kecil (a-z)', level: 2 },
+                { regex: /[A-Z]/, message: 'Password harus mengandung huruf besar (A-Z)', level: 3 },
+                { regex: /[0-9]/, message: 'Password harus mengandung angka (0-9)', level: 4 },
+                { regex: /[\W_]/, message: 'Password harus mengandung simbol', level: 5 }
             ];
 
             if (this.form.password) {
-                const strength = rules.reduce((acc, rule) => acc + rule.regex.test(this.form.password), 0);
-                return strength ? rules[strength - 1] : false;
-            } else {
-                return false
+                let passed = 0;
+                let failedRule = null;
+                for (let i = 0; i < rules.length; i++) {
+                    if (rules[i].regex.test(this.form.password)) {
+                        passed++;
+                    } else {
+                        failedRule = rules[i];
+                    break;
+                    }
+                }
+                if (passed === rules.length) {
+                    return { level: 5, message: 'Password sangat kuat' };
+                } else if (failedRule) {
+                    return { level: passed, message: failedRule.message };
+                }
             }
+            return false;
         },
         schema() {
             return yup.object({
                 nama: yup.string().required('Masukkan nama'),
                 email: yup.string().required('Masukkan email'),
-                password: !this.$route.params.id ? yup.string().required('Masukkan password').min(8, 'Masukkan password minimal 8 karakter') : null,
+                password: !this.$route.params.id
+                    ? yup.string()
+                        .required('Masukkan password')
+                        .min(8, 'Masukkan password minimal 8 karakter')
+                    : null,
                 password_confirm: !this.$route.params.id ? yup.string().required('Masukkan konfirmasi password').min(8, 'Masukkan password minimal 8 karakter') : null,
             });
         }
@@ -204,6 +220,14 @@ export default {
         },
         async handleSubmit() {
             try {
+                if (this.passwordStrength && this.passwordStrength.level < 5) {
+                    this.$toast.error(this.passwordStrength.message);
+                    return;
+                } if (this.form.password && this.form.password !== this.form.confirmPassword) {
+                    this.$toast.error('Konfirmasi password tidak sesuai!');
+                    return;
+                }
+
                 this.setRawPhone()
                 this.loading = this.$loading.show()
                 const result = await ApiCore.store(`${apiEndPoint.MANAGE_USER}/save`, {...this.form})
