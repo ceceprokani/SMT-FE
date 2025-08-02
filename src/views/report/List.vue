@@ -41,7 +41,7 @@
                                             v-model="params.dateRange"
                                             :config="config"
                                             @change="fetchData(1)"
-                                            placeholder="Pilih Rentang Tanggal Deadline"
+                                            placeholder="Pilih Rentang Tanggal"
                                             class="form-control bg-white fw-bold"
                                             />
                                         </div>
