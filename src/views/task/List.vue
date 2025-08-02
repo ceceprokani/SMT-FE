@@ -43,11 +43,17 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-12">
+                            <div class="col-md-9">
                                 <div class="input-group-left">
                                     <i class="mdi mdi-magnify fs-2 input-group-icon"></i>
                                     <input type="text" class="form-control input-group-form" placeholder="Cari berdasarkan deskripsi tugas disini" v-model="params.keywords" @input="debouncedHandler">
                                 </div>
+                            </div>
+                            <div class="col-md-3" v-if="$store.state.user.role != 'staff'">
+                                <select class="form-select select-rounded padding-vertical-10" v-model="params.user_id" @change="fetchData(1)">
+                                    <option value="">Semua  Pengguna &nbsp;</option>
+                                    <option v-for="item in listUser" :value="item.id">{{ item.nama }} &nbsp;</option>
+                                </select>
                             </div>
                         </div>
                         <div class="spacer-medium"></div>
@@ -156,7 +162,7 @@ export default {
         return {
             list: [],
             params: {
-                rw_id: '',
+                user_id: '',
                 status: '',
                 keywords: '',
             },
@@ -173,7 +179,8 @@ export default {
                 todo: 0,
                 progress: 0,
                 done: 0
-            }
+            },
+            listUser: [],
         }
     },
     computed: {
@@ -184,6 +191,7 @@ export default {
     mounted() {
         this.fetchData(1)
         this.fetchDataStatistic()
+        this.fetchDataUser()
     },
     created() {
         this.debouncedHandler = debounce(() => {
@@ -195,6 +203,13 @@ export default {
         this.debouncedHandler.cancel();
     },
     methods: {
+        async fetchDataUser() {
+            ApiCore.get(`${apiEndPoint.MASTER_DATA}/list-user`, {}, false).then((result) => {
+                if (result.status) {
+                    this.listUser = result.data
+                }
+            })
+        },
         async fetchData(page=1) {
             ApiCore.get(apiEndPoint.TASK, {
                 page: page,
