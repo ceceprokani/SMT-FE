@@ -17,13 +17,13 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-10">
+                            <div class="col-md-12">
                                 <div class="input-group-left">
                                     <i class="mdi mdi-magnify fs-2 input-group-icon"></i>
                                     <input type="text" class="form-control input-group-form" placeholder="Cari berdasarkan nama atau email disini" v-model="keywords" @input="debouncedHandler">
                                 </div>
                             </div>
-                            <div class="col-md-2 text-end">
+                            <div class="d-none col-md-2 text-end">
                                 <select class="form-select select-rounded padding-vertical-10" @change="fetchData(1)">
                                     <option value="">Semua  Jabatan &nbsp;</option>
                                 </select>
@@ -77,6 +77,7 @@
                                                         <td class="middle-item" v-if="$store.state.user?.role == 'superadmin'">{{ item.password_raw || '-' }}</td>
                                                         <td class="middle-item">
                                                             <div class="d-flex justify-content-end align-items-center">
+                                                                <button type="button" class="btn border custom-rounded-medium padding-vertical-10 me-2 bg-white" data-bs-toggle="modal" data-bs-target=".modal-password" @click="updateData(item)">Ubah Password</button>
                                                                 <router-link :to="`manage-users/form/${item.id}`" class="btn btn-square border bg-white me-2"><i class="mdi mdi-circle-edit-outline fs-4"></i></router-link>
                                                                 <button type="button" class="btn btn-square border bg-white" @click="deletedData(item)"><i class="mdi mdi-trash-can-outline fs-4"></i></button>
                                                             </div>
@@ -104,9 +105,64 @@
             </div>
         </div>
     </main>
+    <div class="modal fade modal-password custom-rounded-medium" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal modal-dialog-centered">
+            <div class="modal-content custom-rounded-medium">
+                <Form :validation-schema="schema" @submit="handleSubmit">
+                <div class="modal-header border-0">
+                    <div class="d-block">
+                        <div class="modal-title">Ubah Password</div>
+                        <h5 class="modal-title mb-0">{{ form.name }}</h5>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group" :class="{'mb-2': passwordStrength, 'mb-3': !passwordStrength}">
+                        <label class="form-label">Password</label>
+                        <div style="position: relative;">
+                            <Field :type="togglePasswordVisibility[0] ? 'text' : 'password'" name="password" class="form-control" placeholder="Masukkan password" v-model="form.password" />
+                            <i class="mdi" v-if="form.password" :class="{'mdi-eye': togglePasswordVisibility[0], 'mdi-eye-off': !togglePasswordVisibility[0]}" style="position: absolute; top: 10px; right: 10px; cursor: pointer" @click="togglePasswordVisibility[0] = !togglePasswordVisibility[0]"></i>
+                        </div>
+                        <ErrorMessage name="password" :class="'text-danger'" />
+                    </div>
+                    <div class="d-flex mb-3 fw-bold" v-if="passwordStrength" :class="{'text-danger': passwordStrength.level < 2, 'text-primary': passwordStrength.level <= 4, 'text-success': passwordStrength.level >= 5}">
+                        <i class="mdi me-2" :class="{'mdi-alert': passwordStrength.level < 5, 'mdi-check-circle': passwordStrength.level >= 5}"></i>
+                        <div>{{passwordStrength.message}}</div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Konfirmasi Password</label>
+                        <div style="position: relative;">
+                            <Field :type="togglePasswordVisibility[1] ? 'text' : 'password'" name="password_confirm" class="form-control" placeholder="Masukkan konfirmasi password" v-model="form.confirmPassword" />
+                            <i class="mdi" v-if="form.confirmPassword" :class="{'mdi-eye': togglePasswordVisibility[1], 'mdi-eye-off': !togglePasswordVisibility[1]}" style="position: absolute; top: 10px; right: 10px; cursor: pointer" @click="togglePasswordVisibility[1] = !togglePasswordVisibility[1]"></i>
+                        </div>
+                        <ErrorMessage name="password_confirm" :class="'text-danger'" />
+                    </div>
+                    <div class="alert alert-info custom-rounded-medium">
+                        <h6>
+                            <i class="mdi mdi-information me-2"></i>Rekomendasi kombinasi password :
+                        </h6>
+                        <ul class="mt-2 mb-0 font-size-12">
+                            <li>Memiliki setidaknya 8 karakter</li>
+                            <li>Mengandung minimal satu huruf kecil (a-z).</li>
+                            <li>Mengandung minimal satu huruf besar (A-Z).</li>
+                            <li>Mengandung minimal satu angka (0-9).</li>
+                            <li>Mengandung minimal satu simbol (misalnya: !@#$%^&*()_+).</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-3">
+                    <button type="button" class="btn btn-light waves-effect custom-rounded-medium fw-bold px-3" data-bs-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-primary waves-effect custom-rounded-medium fw-bold px-3">Simpan</button>
+                </div>
+                </Form>
+            </div>
+        </div>
+    </div>
 </template>
 <script>
 import {filter, map, debounce} from 'lodash' // library untuk manipulasi array
+
+import { Field, Form, ErrorMessage } from 'vee-validate';
+import * as yup from 'yup';
 
 import apiEndPoint from '@/services/api-endpoint'
 import ApiCore from '@/services/core'
@@ -126,13 +182,58 @@ export default {
                 total: 0
             },
             loading: null,
-            rwId: '',
+            form: {
+                password: '',
+                confirmPassword: ''
+            },
+            togglePasswordVisibility: [false, false]
         }
+    },
+    components: {
+        Field, Form, ErrorMessage
     },
     computed: {
         selectedData() {
             return filter(this.list, function(data) { return data.checked; })
         },
+        passwordStrength() {
+            const rules = [
+                { regex: /.{8,}/, message: 'Password minimal 8 karakter', level: 1 },
+                { regex: /[a-z]/, message: 'Password harus mengandung huruf kecil (a-z)', level: 2 },
+                { regex: /[A-Z]/, message: 'Password harus mengandung huruf besar (A-Z)', level: 3 },
+                { regex: /[0-9]/, message: 'Password harus mengandung angka (0-9)', level: 4 },
+                { regex: /[\W_]/, message: 'Password harus mengandung simbol', level: 5 }
+            ];
+
+            if (this.form.password) {
+                let passed = 0;
+                let failedRule = null;
+                for (let i = 0; i < rules.length; i++) {
+                    if (rules[i].regex.test(this.form.password)) {
+                        passed++;
+                    } else {
+                        failedRule = rules[i];
+                    break;
+                    }
+                }
+                if (passed === rules.length) {
+                    return { level: 5, message: 'Password sangat kuat' };
+                } else if (failedRule) {
+                    return { level: passed, message: failedRule.message };
+                }
+            }
+            return false;
+        },
+        schema() {
+            return yup.object({
+                password: !this.$route.params.id
+                    ? yup.string()
+                        .required('Masukkan password')
+                        // .min(8, 'Masukkan password minimal 8 karakter')
+                    : null,
+                password_confirm: !this.$route.params.id ? yup.string().required('Masukkan konfirmasi password').min(8, 'Masukkan password minimal 8 karakter') : null,
+            });
+        }
     },
     watch: {
         keywords(value) {
@@ -246,6 +347,44 @@ export default {
                         }
                     }
                 });
+        },
+        updateData(data) {
+            this.form = {
+                id: data.id,
+                name: data.nama,
+                email: data.email,
+            }
+        },
+        async handleSubmit() {
+            try {
+                if (this.passwordStrength && this.passwordStrength.level < 5) {
+                    this.$toast.error(this.passwordStrength.message);
+                    return;
+                } if (this.form.password && this.form.password !== this.form.confirmPassword) {
+                    this.$toast.error('Konfirmasi password tidak sesuai!');
+                    return;
+                }
+
+                this.loading = this.$loading.show()
+                const result = await ApiCore.store(`${apiEndPoint.MANAGE_USER}/change-password`, {...this.form})
+                this.fetch = false
+                if (result.status) {
+                    this.$toast.success(result.message);
+                    this.fetchData(this.pagination.page)
+                } else {
+                    this.$toast.error(result.message);
+                }
+                
+                this.loading.hide()
+            } catch(error) {
+                if (this.loading != null)
+                    this.loading.hide()
+                this.fetch = false
+
+                let message = error.message || error.code
+                
+                this.$toast.error(message);
+            }
         },
     }
 }

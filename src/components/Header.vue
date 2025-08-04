@@ -56,7 +56,7 @@
                     </button>
                     <div class="dropdown-menu dropdown-menu-end">
                         <!-- item-->
-                        <a class="dropdown-item" href="#"><i class="ri-user-line align-middle me-1"></i> Profile</a>
+                        <a class="dropdown-item" href="#/profile"><i class="ri-user-line align-middle me-1"></i> Profile</a>
                         <router-link class="dropdown-item" :to="'/change-password'"><i class="ri-lock-line align-middle me-1"></i> Ubah Password</router-link>
                         <div class="dropdown-divider"></div>
                         <button class="dropdown-item text-danger" @click="logout"><i class="ri-shut-down-line align-middle me-1 text-danger"></i> Logout</button>

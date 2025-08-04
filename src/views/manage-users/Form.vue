@@ -5,22 +5,22 @@
                 <div class="page-content">
                     <div class="container-fluid">
                         <!-- title of page -->
-                        <div class="row">
-                            <div class="col-12 mt-3">
+                        <div class="row" :class="{'justify-content-center': id}">
+                            <div class="mt-3" :class="{'col-6': id, 'col-12': !id}">
                                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
                                     <h4 class="mb-sm-0">Form Data Pengguna</h4>
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-12">
+                        <div class="row" :class="{'justify-content-center': id}">
+                            <div :class="{'col-md-12': !id, 'col-md-6': id}">
                                 <Form :validation-schema="schema" @submit="handleSubmit">
                                     <div class="card custom-rounded-medium">
                                         <div class="card-body">
                                             <h6 class="mb-3">Silahkan lengkapi form dibawah ini dengan benar.</h6>
                                             <div class="spacer-medium"></div>
                                             <div class="row">
-                                                <div class="col-md-6">
+                                                <div  :class="{'col-md-12': id, 'col-md-6': !id}">
                                                     <div class="form-group mb-3">
                                                         <label class="form-label">Nama</label>
                                                         <Field type="text" name="nama" class="form-control custom-rounded-medium" placeholder="Masukkan nama" v-model="form.nama"/>
@@ -64,7 +64,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-6" v-if="!id">
                                                     <div class="custom-rounded-medium p-3 alert alert-primary">
                                                         <h5><i class="mdi mdi-information me-3"></i>Informasi Akun</h5>
                                                         <p :class="{'mb-0': id}">Silahkan masukkan password untuk login ke aplikasi</p>
@@ -190,7 +190,7 @@ export default {
                 password: !this.$route.params.id
                     ? yup.string()
                         .required('Masukkan password')
-                        .min(8, 'Masukkan password minimal 8 karakter')
+                        // .min(8, 'Masukkan password minimal 8 karakter')
                     : null,
                 password_confirm: !this.$route.params.id ? yup.string().required('Masukkan konfirmasi password').min(8, 'Masukkan password minimal 8 karakter') : null,
             });
