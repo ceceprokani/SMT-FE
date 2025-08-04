@@ -48,7 +48,7 @@
                                     </div>
                                 </div>
                                 <div class="card card-body custom-rounded-medium p-0">
-                                    <div class="table-responsive">
+                                    <div class="table-responsive-md">
                                         <table class="table table-bordered table-striped mb-0">
                                             <thead>
                                                 <tr>
@@ -56,9 +56,7 @@
                                                     <th>Nama</th>
                                                     <th>Email</th>
                                                     <th>No HP</th>
-                                                    <th>Jabatan</th>
-                                                    <th>Status</th>
-                                                    <th v-if="$store.state.user?.role == 'superadmin'">Password</th>
+                                                    <th class="text-center">Status</th>
                                                     <th></th>
                                                 </tr>
                                             </thead>
@@ -66,18 +64,31 @@
                                                 <template v-if="pagination.total > 0">
                                                     <tr v-for="item in list">
                                                         <td class="middle-item"><input type="checkbox" class="form-check-input" v-model="item.checked" /></td>
-                                                        <td class="middle-item">{{ item.nama }}</td>
+                                                        <td class="middle-item">
+                                                            <div class="fw-bold mb-1">{{ item.nama }}</div>
+                                                            <div class="badge bg-dark fs-6">{{ item.jabatan || '-' }}</div>
+                                                        </td>
                                                         <td class="middle-item">{{ item.email }}</td>
                                                         <td class="middle-item">{{ item.telepon }}</td>
-                                                        <td class="middle-item">{{ item.jabatan || '-' }}</td>
-                                                        <td class="middle-item">
+                                                        <td class="middle-item text-center">
                                                             <span class="badge bg-primary fs-6" v-if="item.status == 'active'">Aktif</span>
                                                             <span class="badge bg-light fs-6" v-else>Tidak Aktif</span>
                                                         </td>
-                                                        <td class="middle-item" v-if="$store.state.user?.role == 'superadmin'">{{ item.password_raw || '-' }}</td>
                                                         <td class="middle-item">
                                                             <div class="d-flex justify-content-end align-items-center">
-                                                                <button type="button" class="btn border custom-rounded-medium padding-vertical-10 me-2 bg-white text-nowrap" data-bs-toggle="modal" data-bs-target=".modal-password" @click="updateData(item)">Ubah Password</button>
+                                                                <div class="dropdown me-2" v-if="$store.state.user?.role == 'superadmin'">
+                                                                    <button class="btn border custom-rounded-medium padding-vertical-10 bg-white text-nowrap dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                        Kelola Password <i class="mdi mdi-chevron-down ms-1"></i>
+                                                                    </button>
+                                                                    <ul class="dropdown-menu">
+                                                                        <li v-if="$store.state.user?.role == 'superadmin'">
+                                                                            <button class="dropdown-item padding-vertical-10" type="button" @click="showPassword(item)">Lihat Password</button>
+                                                                        </li>
+                                                                        <li>
+                                                                            <button class="dropdown-item padding-vertical-10" type="button" data-bs-toggle="modal" data-bs-target=".modal-password" @click="updateData(item)">Ubah Password</button>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
                                                                 <router-link :to="`manage-users/form/${item.id}`" class="btn btn-square border bg-white me-2"><i class="mdi mdi-circle-edit-outline fs-4"></i></router-link>
                                                                 <button type="button" class="btn btn-square border bg-white" @click="deletedData(item)"><i class="mdi mdi-trash-can-outline fs-4"></i></button>
                                                             </div>
@@ -386,6 +397,46 @@ export default {
                 this.$toast.error(message);
             }
         },
+        async showPassword(data) {
+            const { value: password } = await this.$swal.fire({
+                title: 'Lihat Password Pengguna',
+                html: `
+                    <label for="custom-password" class="fw-normal fs-6" style="display:block; text-align:center; margin-bottom:5px;">
+                        Silahkan masukkan password superadmin untuk melihat password pengguna <b>${data.nama}</b>
+                    </label>
+                    <div class="px-4 mt-4">
+                        <input id="custom-password" type="password" class="form form-control text-center fs-5" placeholder="Masukkan password superadmin">
+                    </div>
+                `,
+                preConfirm: () => {
+                    const value = document.getElementById('custom-password').value;
+                    if (!value) {
+                        this.$swal.showValidationMessage('Password tidak boleh kosong');
+                    }
+                    return value;
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Lihat Password',
+                confirmButtonColor: '#3674B5',
+                cancelButtonColor: '#c0c0c0',
+            });
+
+            if (!password) return;
+            
+            const result = await ApiCore.store(`${apiEndPoint.MANAGE_USER}/show-password`, {id: data.id, password: password})
+            this.fetch = false
+            if (result.status) {
+                this.$swal.fire({
+                    title: 'Password Pengguna',
+                    html: `Password untuk pengguna <b>${data.nama}</b> adalah <b>${result.data.password_raw}</b>`,
+                    icon: 'info',
+                    confirmButtonText: 'Tutup',
+                    confirmButtonColor: '#3674B5'
+                });
+            } else {
+                this.$toast.error(result.message);
+            }
+        }
     }
 }
 </script>
