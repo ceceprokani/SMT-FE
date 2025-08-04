@@ -77,7 +77,7 @@
                                                         <td class="middle-item" v-if="$store.state.user?.role == 'superadmin'">{{ item.password_raw || '-' }}</td>
                                                         <td class="middle-item">
                                                             <div class="d-flex justify-content-end align-items-center">
-                                                                <button type="button" class="btn border custom-rounded-medium padding-vertical-10 me-2 bg-white" data-bs-toggle="modal" data-bs-target=".modal-password" @click="updateData(item)">Ubah Password</button>
+                                                                <button type="button" class="btn border custom-rounded-medium padding-vertical-10 me-2 bg-white text-nowrap" data-bs-toggle="modal" data-bs-target=".modal-password" @click="updateData(item)">Ubah Password</button>
                                                                 <router-link :to="`manage-users/form/${item.id}`" class="btn btn-square border bg-white me-2"><i class="mdi mdi-circle-edit-outline fs-4"></i></router-link>
                                                                 <button type="button" class="btn btn-square border bg-white" @click="deletedData(item)"><i class="mdi mdi-trash-can-outline fs-4"></i></button>
                                                             </div>
