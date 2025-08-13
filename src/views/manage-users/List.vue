@@ -76,7 +76,10 @@
                                                         </td>
                                                         <td class="middle-item">
                                                             <div class="d-flex justify-content-end align-items-center">
-                                                                <div class="dropdown me-2" v-if="$store.state.user?.role == 'superadmin'">
+                                                                <button v-if="$store.state.user?.role == 'superadmin'" class="btn border custom-rounded-medium padding-vertical-10 bg-white text-nowrap dropdown-toggle me-2" type="button" @click="updateData(item)" data-bs-toggle="modal" data-bs-target=".modal-password">
+                                                                    Ubah Password
+                                                                </button>
+                                                                <div class="d-none dropdown me-2" v-if="$store.state.user?.role == 'superadmin'">
                                                                     <button class="btn border custom-rounded-medium padding-vertical-10 bg-white text-nowrap dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                                         Kelola Password <i class="mdi mdi-chevron-down ms-1"></i>
                                                                     </button>

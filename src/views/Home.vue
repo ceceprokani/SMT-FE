@@ -149,6 +149,25 @@ export default {
     },
     components: {Line, Polar},
     mounted() {
+        if (!this.$store.state.user.has_password_updated) {
+            this.$swal
+                .fire({
+                    title: 'Perhatian!!!',
+                    html: `Password kamu <b class="text-danger"><u>belum diperbarui</u></b>. Silahkan untuk memperbarui password kamu`,
+                    icon: 'info',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: 'Ya',
+                    confirmButtonColor: '#3674B5',
+                    denyButtonColor: '#c0c0c0',
+                    denyButtonText: 'Tidak',
+                })
+                .then(async (result) => {
+                    if (result.isConfirmed) {
+                        this.$router.push({name: 'changepassword'})
+                    }
+                })
+        }
         this.fetchDataStatistic()
     },
     methods: {
