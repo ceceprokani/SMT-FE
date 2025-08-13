@@ -20,24 +20,24 @@
                                             <h6 class="mb-3">Silahkan masukkan password anda yang baru.</h6>
                                             <div class="spacer-medium"></div>
                                             <div class="form-group" :class="{'mb-2': passwordStrength, 'mb-3': !passwordStrength}">
-                                                <label class="form-label">Password Baru</label>
+                                                <label class="form-label">Password</label>
                                                 <div style="position: relative;">
-                                                    <Field :type="togglePasswordVisibility[1] ? 'text' : 'password'" name="password" class="form-control" placeholder="Masukkan password" v-model="form.password" />
-                                                    <i class="mdi" v-if="form.password" :class="{'mdi-eye': togglePasswordVisibility[1], 'mdi-eye-off': !togglePasswordVisibility[1]}" style="position: absolute; top: 10px; right: 10px; cursor: pointer" @click="togglePasswordVisibility[1] = !togglePasswordVisibility[1]"></i>
+                                                    <Field :type="togglePasswordVisibility[0] ? 'text' : 'password'" name="new_password" class="form-control" placeholder="Masukkan password" v-model="form.new_password" />
+                                                    <i class="mdi" v-if="form.new_password" :class="{'mdi-eye': togglePasswordVisibility[0], 'mdi-eye-off': !togglePasswordVisibility[0]}" style="position: absolute; top: 10px; right: 10px; cursor: pointer" @click="togglePasswordVisibility[0] = !togglePasswordVisibility[0]"></i>
                                                 </div>
-                                                <ErrorMessage name="password" :class="'text-danger'" />
+                                                <ErrorMessage name="new_password" :class="'text-danger'" />
                                             </div>
-                                            <div class="d-flex mb-3 fw-bold" v-if="passwordStrength" :class="{'text-danger': passwordStrength.level < 2, 'text-primary': passwordStrength.level < 4, 'text-success': passwordStrength.level >= 4}">
-                                                <i class="mdi me-2" :class="{'mdi-alert': passwordStrength.level < 3, 'mdi-check-circle': passwordStrength.level >= 3}"></i>
+                                            <div class="d-flex mb-3 fw-bold" v-if="passwordStrength" :class="{'text-danger': passwordStrength.level < 2, 'text-primary': passwordStrength.level <= 4, 'text-success': passwordStrength.level >= 5}">
+                                                <i class="mdi me-2" :class="{'mdi-alert': passwordStrength.level < 5, 'mdi-check-circle': passwordStrength.level >= 5}"></i>
                                                 <div>{{passwordStrength.message}}</div>
                                             </div>
                                             <div class="form-group mb-3">
-                                                <label class="form-label">Konfirmasi Password Baru</label>
+                                                <label class="form-label">Konfirmasi Password</label>
                                                 <div style="position: relative;">
-                                                    <Field :type="togglePasswordVisibility[2] ? 'text' : 'password'" name="password_confirm" class="form-control" placeholder="Masukkan konfirmasi password" v-model="form.confirmPassword" />
-                                                    <i class="mdi" v-if="form.confirmPassword" :class="{'mdi-eye': togglePasswordVisibility[2], 'mdi-eye-off': !togglePasswordVisibility[2]}" style="position: absolute; top: 10px; right: 10px; cursor: pointer" @click="togglePasswordVisibility[2] = !togglePasswordVisibility[2]"></i>
+                                                    <Field :type="togglePasswordVisibility[1] ? 'text' : 'password'" name="confirm_password" class="form-control" placeholder="Masukkan konfirmasi password" v-model="form.confirm_password" />
+                                                    <i class="mdi" v-if="form.confirm_password" :class="{'mdi-eye': togglePasswordVisibility[1], 'mdi-eye-off': !togglePasswordVisibility[1]}" style="position: absolute; top: 10px; right: 10px; cursor: pointer" @click="togglePasswordVisibility[1] = !togglePasswordVisibility[1]"></i>
                                                 </div>
-                                                <ErrorMessage name="password_confirm" :class="'text-danger'" />
+                                                <ErrorMessage name="confirm_password" :class="'text-danger'" />
                                             </div>
                                             <div class="alert alert-info custom-rounded-medium">
                                                 <h6>
@@ -72,9 +72,8 @@
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 
-import { useRoute } from 'vue-router';
-
-import axios from 'axios';
+import apiEndPoint from '@/services/api-endpoint'
+import ApiCore from '@/services/core'
 
 export default {
     name: 'Profile',
@@ -82,8 +81,8 @@ export default {
         return {
             togglePasswordVisibility: [false, false, false],
             form :{
-                password: '',
-                confirmPassword: '',
+                new_password: '',
+                confirm_password: '',
             },
             loading: null
         }
@@ -92,38 +91,43 @@ export default {
         Field, Form, ErrorMessage
     },
     setup() {
-        const route = useRoute();
-        
         const schema = yup.object({
-            password: !route.params.id ? yup.string().required('Masukkan password').min(8, 'Password minimal 8 karakter') : null,
-            password_confirm: !route.params.id ? yup.string().required('Masukkan konfirmasi password').min(8, 'Password minimal 8 karakter') : null,
-        });
-
-        const api = axios.create({
-            timeout: 30000,
+            new_password: yup.string().required('Masukkan password'),
+            confirm_password: yup.string().required('Masukkan konfirmasi password').min(8, 'Masukkan password minimal 8 karakter'),
         });
 
         return {
             schema,
-            api
         }
     },
     computed: {
         passwordStrength() {
             const rules = [
-                { regex: /.{8,}/, message: 'Password lemah', level: 1 },
-                { regex: /[a-z]/, message: 'Password sedang', level: 2 },
-                { regex: /[A-Z]/, message: 'Password kuat', level: 3 },
-                { regex: /[0-9]/, message: 'Password sangat kuat', level: 4 },
-                { regex: /[\W_]/, message: 'Password sangat kuat', level: 5 }
+                { regex: /.{8,}/, message: 'Password minimal 8 karakter', level: 1 },
+                { regex: /[a-z]/, message: 'Password harus mengandung huruf kecil (a-z)', level: 2 },
+                { regex: /[A-Z]/, message: 'Password harus mengandung huruf besar (A-Z)', level: 3 },
+                { regex: /[0-9]/, message: 'Password harus mengandung angka (0-9)', level: 4 },
+                { regex: /[\W_]/, message: 'Password harus mengandung simbol', level: 5 }
             ];
 
-            if (this.form.password) {
-                const strength = rules.reduce((acc, rule) => acc + rule.regex.test(this.form.password), 0);
-                return strength ? rules[strength - 1] : false;
-            } else {
-                return false
+            if (this.form.new_password) {
+                let passed = 0;
+                let failedRule = null;
+                for (let i = 0; i < rules.length; i++) {
+                    if (rules[i].regex.test(this.form.new_password)) {
+                        passed++;
+                    } else {
+                        failedRule = rules[i];
+                    break;
+                    }
+                }
+                if (passed === rules.length) {
+                    return { level: 5, message: 'Password sangat kuat' };
+                } else if (failedRule) {
+                    return { level: passed, message: failedRule.message };
+                }
             }
+            return false;
         },
     },
     methods: {
@@ -142,37 +146,33 @@ export default {
                 })
                 .then(async (result) => {
                     if (result.isConfirmed) {
-                        if (this.form.password != this.form.confirmPassword) {
-                            this.$toast.error('Konfirmasi password tidak sesuai!');
-                        } else {
-                            this.api
-                                .post(`${import.meta.env.VITE_APP_API_ENDPOINT}/api/update-password`,
-                                    {
-                                        password: this.form.password
-                                    },
-                                    {
-                                        headers: {
-                                            Authorization: `Bearer ${localStorage.getItem('token')}`, // Kirim token untuk verifikasi
-                                        },
-                                    }
-                                )
-                                .then((response) => {
-                                    this.loading.hide()
-                                    if (response.statusText.toLowerCase() === 'ok' || response.status === 200) {
-                                        this.$toast.success(response.data.message);
-
-                                        setTimeout(async () => {
-                                            localStorage.removeItem('token')
-                                            this.$router.push("/signin");
-                                        }, 500);
-                                    } else {
-                                        this.$toast.error(response.data.message);
-                                    }
-                                })
-                                .catch((error) => {
-                                    this.loading.hide()
-                                    this.$toast.error(error.response.data.error);
-                                });
+                        try {
+                            if (this.passwordStrength && this.passwordStrength.level < 5) {
+                                this.$toast.error(this.passwordStrength.message);
+                                return;
+                            } if (this.form.new_password && this.form.new_password !== this.form.confirm_password) {
+                                this.$toast.error('Konfirmasi password tidak sesuai!');
+                                return;
+                            }
+            
+                            this.loading = this.$loading.show()
+                            const result = await ApiCore.store(`${apiEndPoint.ACCOUNT}/change-password`, {...this.form})
+                            this.fetch = false
+                            if (result.status) {
+                                this.$toast.success(result.message);
+                            } else {
+                                this.$toast.error(result.message);
+                            }
+                            
+                            this.loading.hide()
+                        } catch(error) {
+                            if (this.loading != null)
+                                this.loading.hide()
+                            this.fetch = false
+            
+                            let message = error.message || error.code
+                            
+                            this.$toast.error(message);
                         }
                     }
                 });

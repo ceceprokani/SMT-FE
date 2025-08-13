@@ -43,7 +43,7 @@
                             </div>
                         </div>
                         <div class="row mb-3">
-                            <div class="col-md-9">
+                            <div :class="{'col-md-9': $store.state.user.role != 'staff', 'col-md-12': $store.state.user.role == 'staff'}">
                                 <div class="input-group-left">
                                     <i class="mdi mdi-magnify fs-2 input-group-icon"></i>
                                     <input type="text" class="form-control input-group-form" placeholder="Cari berdasarkan deskripsi tugas disini" v-model="params.keywords" @input="debouncedHandler">
