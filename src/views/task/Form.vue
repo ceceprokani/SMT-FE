@@ -38,22 +38,33 @@
                                                 <ErrorMessage name="deskripsi" :class="'text-danger'" />
                                             </div>
                                             <div class="form-group mb-3">
-                                                <label class="form-label">Prioritas <span class="text-danger">*</span></label>
-                                                <Field as="select" name="prioritas" class="form-select select-rounded padding-vertical-10 mb-2" v-model="form.prioritas">
-                                                    <option value="">Pilih Prioritas &nbsp;</option>
-                                                    <option v-for="item in $priorityTask" :value="item.id">{{ item.label }} &nbsp;</option>
-                                                </Field>
-                                                <ErrorMessage name="prioritas" :class="'text-danger'" />
-                                            </div>
-                                            <div class="form-group mb-3">
                                                 <label class="form-label">Deadline Tugas <span class="text-danger">*</span></label>
                                                 <Field
                                                     type="datetime-local"
                                                     name="deadline"
                                                     class="form-control mb-2"
                                                     v-model="form.deadline"
+                                                    :min="new Date().toISOString().slice(0,16)"
+                                                    @change="calculatePriority()"
                                                 />
                                                 <ErrorMessage name="deadline" :class="'text-danger'" />
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">Prioritas</label>
+                                                <Field type="hidden" name="prioritas" class="mb-2" v-model="form.prioritas"></Field>
+                                                <div class="d-block mb-3" v-if="form.prioritas">
+                                                    <div class="badge custom-rounded-medium bg-primary p-2 text-uppercase fs-6">{{ form.prioritas }}</div>
+                                                </div>
+                                                <div class="alert alert-info custom-rounded-medium p-3">
+                                                    <p class="d-flex mb-1"><i class="ri-information-fill me-2"></i> Prioritas otomatis berdasarkan deadline:</p>
+                                                    <ul class="list-unstyled mb-0">
+                                                        <li><b>Urgent</b>: Deadline kurang dari atau sama dengan 1 hari</li>
+                                                        <li><b>High</b>: Deadline antara 2 sampai 3 hari</li>
+                                                        <li><b>Medium</b>: Deadline antara 4 sampai 5 hari</li>
+                                                        <li><b>Low</b>: Deadline lebih dari 5 hari</li>
+                                                    </ul>
+                                                </div>
+                                                <ErrorMessage name="prioritas" :class="'text-danger'" />
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Catatan</label>
@@ -110,7 +121,7 @@ export default {
             return yup.object({
                 penerima_tugas_id: yup.string().required('Pilih penerima tugas'),
                 deskripsi: yup.string().required('Masukkan deskripsi tugas'),
-                prioritas: yup.string().required('Pilih prioritas tugas'),
+                // prioritas: yup.string().required('Pilih prioritas tugas'),
                 deadline: yup.string().required('Masukan deadline tugas'),
             });
         }
@@ -155,6 +166,26 @@ export default {
                 this.$toast.error(message);
             }
         },
+        async calculatePriority() {
+            if (this.form.deadline) {
+                const now = new Date();
+                const deadline = new Date(this.form.deadline);
+                const diffTime = Math.abs(deadline - now);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                if (diffDays <= 1) {
+                    this.form.prioritas = 'urgent';
+                } else if (diffDays <= 3) {
+                    this.form.prioritas = 'high';
+                } else if (diffDays <= 5) {
+                    this.form.prioritas = 'medium';
+                } else {
+                    this.form.prioritas = 'low';
+                }
+            } else {
+                this.form.prioritas = '';
+            }
+        }
     }
 }
 </script>

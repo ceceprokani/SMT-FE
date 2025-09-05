@@ -120,7 +120,7 @@
         </div>
     </main>
     <div class="modal fade modal-password custom-rounded-medium" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content custom-rounded-medium">
                 <Form :validation-schema="schema" @submit="handleSubmit">
                 <div class="modal-header border-0">
