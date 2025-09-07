@@ -33,35 +33,82 @@
                                                 <ErrorMessage name="penerima_tugas_id" :class="'text-danger'" />
                                             </div>
                                             <div class="form-group mb-3">
+                                                <label class="form-label">Jenis Tugas <span class="text-danger">*</span></label>
+                                                <Field as="select" name="point_jenis_tugas" class="form-select select-rounded padding-vertical-10 mb-2" v-model="form.point_jenis_tugas" @change="totalPointPrioritas = form.point_jenis_tugas">
+                                                    <option value="">Pilih Jenis Tugas &nbsp;</option>
+                                                    <option v-for="item in jenisTugas" :value="item.point">{{ item.label }} &nbsp;</option>
+                                                </Field>
+                                                <div class="alert alert-info custom-rounded-medium p-3">
+                                                    <p class="d-flex mb-1"><i class="ri-information-fill me-2"></i> Ketentuan Jenis Tugas:</p>
+                                                    <table class="table table-sm mb-0 table-borderless">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="25%" style="padding-top: 10px; padding-bottom: 10px; border-bottom: 2px solid #a9cdf1">Jenis Tugas</th>
+                                                                <th width="10%" style="padding-top: 10px; padding-bottom: 10px; text-align: center; border-bottom: 2px solid #a9cdf1">Poin</th>
+                                                                <th style="padding-top: 10px; padding-bottom: 10px; border-bottom: 2px solid #a9cdf1">Contoh</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="padding-top: 10px"><b>Tugas Kritis</b></td>
+                                                                <td style="text-align: center; padding-top: 10px">+5</td>
+                                                                <td style="padding-top: 10px">Bug fixing, masalah klien yang mendesak, tugas yang menghentikan operasional</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Tugas Strategis</b></td>
+                                                                <td style="text-align: center;">+4</td>
+                                                                <td>Perencanaan proyek baru, pembuatan laporan bulanan penting, persiapan presentasi</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Tugas Rutin</b></td>
+                                                                <td style="text-align: center;">+2</td>
+                                                                <td>Membalas email, rapat mingguan, pengisian data</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td><b>Tugas Administratif</b></td>
+                                                                <td style="text-align: center;">+1</td>
+                                                                <td>Mengarsip dokumen, pembersihan data, tugas pendukung</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <ErrorMessage name="point_jenis_tugas" :class="'text-danger'" />
+                                            </div>
+                                            <div class="form-group mb-3">
                                                 <label class="form-label">Deskripsi Tugas <span class="text-danger">*</span></label>
                                                 <Field as="textarea" name="deskripsi" rows="4" class="form-control custom-rounded-medium mb-2" placeholder="Masukkan deskripsi tugas" v-model="form.deskripsi"/>
                                                 <ErrorMessage name="deskripsi" :class="'text-danger'" />
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Deadline Tugas <span class="text-danger">*</span></label>
-                                                <Field
+                                                <Field name="deadline" v-model="form.deadline" type="hidden" />
+                                                <input
+                                                    ref="deadlineField"
                                                     type="datetime-local"
-                                                    name="deadline"
                                                     class="form-control mb-2"
                                                     v-model="form.deadline"
                                                     :min="new Date().toISOString().slice(0,16)"
                                                     @change="calculatePriority()"
+                                                    @click="validatePointTask()"
                                                 />
                                                 <ErrorMessage name="deadline" :class="'text-danger'" />
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Prioritas</label>
                                                 <Field type="hidden" name="prioritas" class="mb-2" v-model="form.prioritas"></Field>
-                                                <div class="d-block mb-3" v-if="form.prioritas">
-                                                    <div class="badge custom-rounded-medium bg-primary p-2 text-uppercase fs-6">{{ form.prioritas }}</div>
+                                                <div class="d-block mb-3">
+                                                    <div class="badge custom-rounded-medium bg-primary p-2 text-uppercase fs-6 me-2" v-if="form.prioritas">{{ form.prioritas }}</div>
+                                                    <div class="badge custom-rounded-medium bg-secondary p-2 text-uppercase fs-6">
+                                                        Total Skor : {{ totalPointPrioritas }} <span v-if="!form.point_jenis_tugas">(Belum memilih jenis tugas)</span>
+                                                    </div>
                                                 </div>
                                                 <div class="alert alert-info custom-rounded-medium p-3">
                                                     <p class="d-flex mb-1"><i class="ri-information-fill me-2"></i> Prioritas otomatis berdasarkan deadline:</p>
                                                     <ul class="list-unstyled mb-0">
-                                                        <li><b>Urgent</b>: Deadline kurang dari atau sama dengan 1 hari</li>
-                                                        <li><b>High</b>: Deadline antara 2 sampai 3 hari</li>
-                                                        <li><b>Medium</b>: Deadline antara 4 sampai 5 hari</li>
-                                                        <li><b>Low</b>: Deadline lebih dari 5 hari</li>
+                                                        <li><b>Total Skor 9 - 10:</b> Status <b>Urgent</b></li>
+                                                        <li><b>Total Skor 7 - 8:</b> Status <b>High</b></li>
+                                                        <li><b>Total Skor 4 - 6:</b> Status <b>Medium</b></li>
+                                                        <li><b>Total Skor ≤ 3:</b> Status <b>Low</b></li>
                                                     </ul>
                                                 </div>
                                                 <ErrorMessage name="prioritas" :class="'text-danger'" />
@@ -90,6 +137,7 @@
 <script>
 import { Field, Form, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
+import _ from 'lodash';
 
 import apiEndPoint from '@/services/api-endpoint'
 import ApiCore from '@/services/core'
@@ -108,9 +156,30 @@ export default {
                 deskripsi: '',
                 prioritas: '',
                 catatan: '',
+                point_jenis_tugas: '',
             },
             loading: null,
-            togglePasswordVisibility: [false, false]
+            togglePasswordVisibility: [false, false],
+            prioritasPoint: 1,
+            totalPointPrioritas: 1,
+            jenisTugas: [
+                {
+                    point: 5,
+                    label: 'Tugas Kritis'
+                },
+                {
+                    point: 4,
+                    label: 'Tugas Strategis'
+                },
+                {
+                    point: 2,
+                    label: 'Tugas Rutin'
+                },
+                {
+                    point: 1,
+                    label: 'Tugas Administratif'
+                }
+            ]
         }
     },
     components: {
@@ -166,7 +235,7 @@ export default {
                 this.$toast.error(message);
             }
         },
-        async calculatePriority() {
+        calculatePriority() {
             if (this.form.deadline) {
                 const now = new Date();
                 const deadline = new Date(this.form.deadline);
@@ -174,16 +243,49 @@ export default {
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
                 if (diffDays <= 1) {
-                    this.form.prioritas = 'urgent';
+                    this.prioritasPoint = 5;
                 } else if (diffDays <= 3) {
-                    this.form.prioritas = 'high';
+                    this.prioritasPoint = 4;
                 } else if (diffDays <= 5) {
-                    this.form.prioritas = 'medium';
+                    this.prioritasPoint = 3;
                 } else {
+                    this.prioritasPoint = 1;
+                }
+
+                let totalPoint = this.prioritasPoint + parseInt(this.form.point_jenis_tugas || 0);
+
+                if (totalPoint >= 9) {
+                    this.form.prioritas = 'urgent';
+                } else if (totalPoint >= 7 && totalPoint <= 8) {
+                    this.form.prioritas = 'high';
+                } else if (totalPoint >= 4 && totalPoint <= 6) {
+                    this.form.prioritas = 'medium';
+                } else if (totalPoint <= 3) {
                     this.form.prioritas = 'low';
                 }
+
+                this.totalPointPrioritas = totalPoint;
             } else {
                 this.form.prioritas = '';
+            }
+        },
+        validatePointTask() {
+            if (!this.form.point_jenis_tugas) {
+                this.$refs.deadlineField.disabled = true;
+                setTimeout(() => { // delay 300 milliseconds
+                        this.$swal.fire({
+                            icon: 'warning',
+                            title: 'Jenis Tugas belum dipilih',
+                            text: 'Silakan pilih jenis tugas terlebih dahulu sebelum menentukan deadline.',
+                        });
+                        this.form.deadline = '';
+                        this.$refs.deadlineField.blur();
+                        this.$refs.deadlineField.disabled = false;
+                        return;
+                }, 300);
+            } else {
+                this.$refs.deadlineField.disabled = false;
+                this.$refs.deadlineField.focus();
             }
         }
     }
